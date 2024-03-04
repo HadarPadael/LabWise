@@ -1,0 +1,15 @@
+.search-input-container {
+    position: relative;
+  }
+  
+  .search-input {
+    padding-left: 30px; /* Adjust as needed */
+  }
+  
+  .search-icon {
+    position: absolute;
+    left: 10px; /* Adjust position as needed */
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d; /* Adjust color as needed */
+  }

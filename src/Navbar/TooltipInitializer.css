@@ -1,0 +1,8 @@
+/* Custom styles for the tooltip */
+.tooltip {
+    background-color: #4a669d;
+    border-radius: 4px;
+    --bs-tooltip-bg: #4a669d;
+  }
+  
+  

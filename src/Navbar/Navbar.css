@@ -1,0 +1,81 @@
+
+.darkStyle {
+  background-image: var(--bs-gradients);
+}
+
+.style {
+  background-image: var(--bs-gradient);
+}
+
+.my-color {
+  color: rgb(55, 41, 68);
+}
+
+.dark-color {
+  color: rgb(156, 154, 157);
+}
+
+.nav-header {
+    padding: 10px 10px
+  }
+
+
+.my-navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000; /* Ensure navbar appears above other content */
+    height: 50px; /* Adjust the height as needed */
+    padding: 5px 5px; /* Adjust top and bottom padding as needed */
+    /* background-image: var(--bs-gradient); */
+}
+
+.my-navbar .container {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.profile-picture {
+    width: 30px; /* Adjust size as needed */
+    height: 30px; /* Adjust size as needed */
+    overflow: hidden;
+} 
+
+
+.dropdown-item {
+    background-color: #482376; /* Match the background color */
+    color: white; /* Match the text color */
+    border: none; /* Match the border */
+    cursor: pointer; /* Match the cursor */
+    width: 100%; /* Set the width */
+    border-radius: 4px; /* Add border radius */
+  }
+  
+  .dropdown-item:hover {
+    background-color: #281342; /* Match the hover background color */
+    color: white; /* Match the text color */
+  }
+
+.dropdown-menu {
+    display: none; /* Hide the dropdown menu by default */
+    position: absolute; /* Position the dropdown absolutely */
+    left: 0; /* Adjust the left position as needed */
+    width: 80px; /* Set the width of the dropdown menu */
+    /* background-image: var(--bs-gradient); */
+  }
+
+.dropdown-menu.show {
+    /* position: fixed; */
+   display: flex; /* Display the dropdown menu when the "show" class is applied */
+   left: -90px;
+   top: 115%;
+   /* padding: 20px, 5px; */
+   justify-content: center; 
+   align-items: center;
+}
+
+.dropdown-menu.position {
+    left: -135px;
+    top: 150%;
+}
+
