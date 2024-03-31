@@ -1,100 +1,44 @@
 import React, { useState } from 'react';
-import AddOptions from './AddOptions';
-import SearchOptions from './SearchOptions';
 import Navbar from './Navbar/Navbar';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import HomePage from './HomePage';
+import AddOptions from './AddOptions'
+import SearchOptions from './SearchOptions'
+import AddProject from './AddProject/AddProject'
 import "./App.css";
 
 function App() {
-  const [showAddOptions, setShowAddOptions] = useState(false);
-  const [showSearchOptions, setShowSearchOptions] = useState(false);
   const [filter, setFilter] = useState("");
-  // State variable to track whether dark mode is enabled
-  const [darkMode, setDarkMode] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // Function to toggle dark mode
-  const toggleDarkMode = () => {
-    setDarkMode(prevDarkMode => !prevDarkMode);
+  // Protected route component
+  const ProtectedRoute = ({ element, ...rest }) => {
+    return isLoggedIn ? element : <Navigate to="/" replace />;
   };
-  // Apply dark mode styles conditionally
-  const appStyle = darkMode ? "App dark-theme" : "App";
 
   const doSearch = function(q) {
     setFilter(q);
   };
 
-  const scrollToTop = () => {
-    document.querySelector('.centralFeed').scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handlePostSubmit = ({ text, image, date }) => {
-  };
-
-  const handleAddClick = () => {
-    setShowAddOptions(true);
-    setShowSearchOptions(false);
-  };
-
-  const handleSearchClick = () => {
-    setShowSearchOptions(true);
-    setShowAddOptions(false);
-  };
-
   return (
-    <div style={{ backgroundColor: '#222', height: '100%' }}> {/* Set background color */}
-    <Navbar 
-        updatePosts={handlePostSubmit}
-        doSearch={doSearch} 
-        onHomeButtonClick={scrollToTop} 
-        toggleDarkMode={toggleDarkMode}
-        darkMode={darkMode}
-        // setIsLoggedIn={setIsLoggedIn}
-      />
-      
-      
-      <div class="container" >
-      {/* <div className="d-flex flex-row align-items-center">
-        <img src="./labwise logo.png" alt="facybook" width="200" height="200" />
-      </div> */}
+    <BrowserRouter>
+    <div style={{ backgroundColor: '#111222', height: '100%' }}> {/* Set background color */}
+        <Navbar
+          doSearch={doSearch}
+        />
+    <Routes>
+      {/* Public routes */}
+      <Route path="/" element={<HomePage/>} />
+      <Route path="/AddOptions" element={<AddOptions />}/>
+      <Route path="/SearchOptions" element={<SearchOptions />}/>
+      <Route path="/AddProject" element={<AddProject />}/>
 
-        <h1>Welcome to Home Screen! </h1>
-        <div class="row justify-content-center"> 
-          <button type="button" class="btn btn-dark btn-circle btn-xl" onClick={handleAddClick}>Add</button>
-          <button type="button" class="btn btn-dark btn-circle btn-xl" onClick={handleSearchClick}>Search</button>
-        </div>
-      </div>
-
-      {showAddOptions && <AddOptions />}
-      {showSearchOptions && <SearchOptions />}
+    </Routes>
     </div>
+  </BrowserRouter>
+
   );
 }
 
 export default App;
 
-
-
-// import logo from './logo.svg';
-// import './App.css';
-
-// function App() {
-//   return (
-//     <div className="App">
-//       <header className="App-header">
-//         <img src={logo} className="App-logo" alt="logo" />
-//         <p>
-//           Edit <code>src/App.js</code> and save to reload.
-//         </p>
-//         <a
-//           className="App-link"
-//           href="https://reactjs.org"
-//           target="_blank"
-//           rel="noopener noreferrer"
-//         >
-//           Learn React
-//         </a>
-//       </header>
-//     </div>
-//   );
-// }
-
-// export default App;

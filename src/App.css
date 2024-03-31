@@ -13,13 +13,15 @@ html, body {
   height: 100%;
 }
 
+ 
 .container {
   display: flex;
   flex-direction: column; /* Stack items vertically */
   align-items: center; /* Center items horizontally */
-  height: 100vh; /* Fill the viewport height */
+  height: 100vh; /*Fill the viewport height */
   padding-top: 80px; /* Adjust to match the height of your navbar */
 }
+ 
 
 .btn-circle.btn-xl {
   width: 150px; /* Adjust button size */
