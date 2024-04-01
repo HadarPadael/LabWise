@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import Navbar from './Navbar/Navbar';
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Login from "./login/login";
+import SignUp from './signup/SignUp';
 import HomePage from './HomePage';
 import AddOptions from './AddOptions'
 import SearchOptions from './SearchOptions'
@@ -22,21 +24,51 @@ function App() {
 
   return (
     <BrowserRouter>
-    <div style={{ backgroundColor: '#111222', height: '100%' }}> {/* Set background color */}
-        <Navbar
-          doSearch={doSearch}
-        />
-    <Routes>
-      {/* Public routes */}
-      <Route path="/" element={<HomePage/>} />
-      <Route path="/AddOptions" element={<AddOptions />}/>
-      <Route path="/SearchOptions" element={<SearchOptions />}/>
-      <Route path="/AddProject" element={<AddProject />}/>
+      <div style={{ backgroundColor: "#111222", height: "100%" }}>
+        {" "}
+        {/* Set background color */}
+        <Navbar doSearch={doSearch} />
+        <Routes>
+          {/* Public routes */}
+          <Route path="/" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
+          <Route path="/signup" element={<SignUp />} />
 
-    </Routes>
-    </div>
-  </BrowserRouter>
-
+          {/* Protected route */}
+          <Route
+            path="/HomePage"
+            element={
+              <ProtectedRoute
+                element={<HomePage setIsLoggedIn={setIsLoggedIn} />}
+              />
+            }
+          />
+          <Route
+            path="/AddOptions"
+            element={
+              <ProtectedRoute
+                element={<AddOptions setIsLoggedIn={setIsLoggedIn} />}
+              />
+            }
+          />
+          <Route
+            path="/SearchOptions"
+            element={
+              <ProtectedRoute
+                element={<SearchOptions setIsLoggedIn={setIsLoggedIn} />}
+              />
+            }
+          />
+          <Route
+            path="/AddProject"
+            element={
+              <ProtectedRoute
+                element={<AddProject setIsLoggedIn={setIsLoggedIn} />}
+              />
+            }
+          />
+        </Routes>
+      </div>
+    </BrowserRouter>
   );
 }
 
