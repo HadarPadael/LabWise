@@ -23,17 +23,12 @@ function Navbar({doSearch}) {
       <nav className={`navbar navbar-expand-lg bg-body-tertiary my-navbar shadow rounded`}>
       {/* Left corner content */}
       <div className="d-flex flex-row align-items-center">
-        <img src="./labwise logo.png" alt="facybook" width="50" height="50" />
+        <img src="./labwise logo.png" width="30" height="30" />
         <a className={`navbar-brand nav-header`} href="#">LabWise</a>
       </div>
 
       {/* Right corner content */}
       <div className="d-flex align-items-center ms-auto">
-        
-
-        {/* Search component */}
-        <Search doSearch={doSearch} />
-
 
         {/* Home button */}
         <ul className="navbar-nav me-auto mb-2 mb-lg-0">

@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
-import Navbar from './Navbar/Navbar';
+import React, { useState } from "react";
+import Navbar from "./Navbar/Navbar";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./login/login";
-import SignUp from './signup/SignUp';
-import HomePage from './HomePage';
-import AddOptions from './AddOptions'
-import SearchOptions from './SearchOptions'
-import AddProject from './AddProject/AddProject'
+import SignUp from "./signup/SignUp";
+import HomePage from "./HomePage";
+import AddOptions from "./AddOptions";
+import SearchOptions from "./SearchOptions";
+import AddProject from "./AddProject/AddProject";
+import CreateItemsView from "./Browse/CreateItemsView/CreateItemsView";
+import ProjectDetailsView from "./Browse/Views/ProjectDetailsView";
 import "./App.css";
 
 function App() {
@@ -18,16 +20,16 @@ function App() {
     return isLoggedIn ? element : <Navigate to="/" replace />;
   };
 
-  const doSearch = function(q) {
+  const doSearch = function (q) {
     setFilter(q);
   };
 
   return (
     <BrowserRouter>
-      <div style={{ backgroundColor: "#111222", height: "100%" }}>
+      <div style={{ backgroundColor: "#ffffff", height: "100%" }}>
         {" "}
         {/* Set background color */}
-        <Navbar doSearch={doSearch} />
+        <Navbar />
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
@@ -66,6 +68,20 @@ function App() {
               />
             }
           />
+          <Route path="/ProjectDetailsView" element={<ProjectDetailsView />} />
+          <Route
+            path="/CreateItemsView"
+            element={
+              <ProtectedRoute
+                element={
+                  <CreateItemsView
+                    setIsLoggedIn={setIsLoggedIn}
+                    doSearch={doSearch}
+                  />
+                }
+              />
+            }
+          />
         </Routes>
       </div>
     </BrowserRouter>
@@ -73,4 +89,3 @@ function App() {
 }
 
 export default App;
-

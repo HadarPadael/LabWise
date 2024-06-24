@@ -1,18 +1,22 @@
-import React, { useRef, useState } from 'react';
-import './Search.css'
+import React, { useState } from "react";
 
-function Search({doSearch}) {
-  const searchBox = useRef();
-  const search = function(){
-    doSearch(searchBox.current.value);
-  } 
- 
+function Search({ doSearch }) {
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const handleSearch = (e) => {
+    const term = e.target.value;
+    setSearchTerm(term);
+    doSearch(term);
+  };
+
   return (
-    <div className="search-input-container">
-      <input ref={searchBox} onKeyUp={search} className="form-control me-2 search-input" placeholder="Search" aria-label="Search" />
-      <i className="bi bi-search search-icon"></i>
-      {/* type="search" adds a x on the row */}
-    </div>
+    <input
+      type="text"
+      placeholder="Search..."
+      value={searchTerm}
+      onChange={handleSearch}
+      className="form-control mb-3"
+    />
   );
 }
 
