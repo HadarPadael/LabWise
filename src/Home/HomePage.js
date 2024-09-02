@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import Styles from "./styles/Styles";
+import Styles from "../styles/Styles";
 
 function HomePage() {
   const navigate = useNavigate();

@@ -1,23 +1,16 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import projects from "./Data/projects.json";
-import "./App.css"; // Ensure this is the correct path to your CSS file
+import "../App.css";
 
-function SearchOptions() {
+function AddOptions() {
   const navigate = useNavigate();
 
   const handleProjectClick = () => {
-    navigate("/CreateItemsView", {
-      state: { items: projects },
-    });
+    navigate("/AddProject");
   };
 
   const handlePDataClick = () => {
-    navigate("/"); // Add the correct route here
-  };
-
-  const handleRDataClick = () => {
-    navigate("/"); // Add the correct route here
+    navigate("/AddProcessedData");
   };
 
   return (
@@ -25,38 +18,38 @@ function SearchOptions() {
       <div className="background-layer">
         <div
           className="card p-4 shadow card-custom"
-          style={{ minWidth: "500px", minHeight: "200px" }}
+          style={{ minWidth: "500px", minHeight: "300px" }}
         >
           <div className="d-flex flex-column align-items-center">
             <h2
               className="app-name mb-2"
               style={{ fontSize: "36px", color: "#333", textAlign: "center" }}
             >
-              Choose your database
+              What would you like to add?
             </h2>
             <div
               className="row justify-content-center mt-4"
               style={{ width: "100%" }}
             >
-              <div className="col-12 col-md-4 d-flex justify-content-center">
+              <div className="col-12 col-md-6 d-flex justify-content-center">
                 <div className="option-box" onClick={handleProjectClick}>
                   <img
-                    src="./archive.svg"
-                    alt="Projects"
+                    src="./folder-plus.svg"
+                    alt="Add Project"
                     className="option-image"
                   />
                   <button
                     className="btn btn-link option-text"
                     style={{ fontSize: "24px" }}
                   >
-                    Projects
+                    A new project
                   </button>
                   <div className="option-description">
-                    Search through all projects.
+                    Add a new project to your labs inventory.
                   </div>
                 </div>
               </div>
-              <div className="col-12 col-md-4 d-flex justify-content-center">
+              <div className="col-12 col-md-6 d-flex justify-content-center">
                 <div className="option-box" onClick={handlePDataClick}>
                   <img
                     src="./bar-chart-line.svg"
@@ -67,28 +60,10 @@ function SearchOptions() {
                     className="btn btn-link option-text"
                     style={{ fontSize: "24px" }}
                   >
-                    Processed Data
+                    Processed data
                   </button>
                   <div className="option-description">
-                    Search through processed data.
-                  </div>
-                </div>
-              </div>
-              <div className="col-12 col-md-4 d-flex justify-content-center">
-                <div className="option-box" onClick={handleRDataClick}>
-                  <img
-                    src="./filetype-raw.svg"
-                    alt="Raw Data"
-                    className="option-image"
-                  />
-                  <button
-                    className="btn btn-link option-text"
-                    style={{ fontSize: "24px" }}
-                  >
-                    Raw Data
-                  </button>
-                  <div className="option-description">
-                    Search through raw data.
+                    Add new processed data to your lab inventory.
                   </div>
                 </div>
               </div>
@@ -100,4 +75,4 @@ function SearchOptions() {
   );
 }
 
-export default SearchOptions;
+export default AddOptions;

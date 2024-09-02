@@ -1,11 +1,4 @@
-/* .btn-circle.btn-xl {
-  width: 100px;
-  height: 100px;
-  padding: 20px 25px;
-  border-radius: 60px;
-  font-size: 15px;
-  text-align: center;
-} */
+
 
 html, body {
   margin: 0;
@@ -19,7 +12,7 @@ html, body {
   flex-direction: column; /* Stack items vertically */
   align-items: center; /* Center items horizontally */
   height: 100vh; /*Fill the viewport height */
-  padding-top: 80px; /* Adjust to match the height of your navbar */
+  padding-top: 80px; /* Adjust to match the height of navbar */
 }
  
 
@@ -100,13 +93,13 @@ h1 {
   background-color: #ffffff;
   /* Set background color to white */
   border: 1px solid #ddd;
-  /* Optional: Add border for better visibility */
+  /* Add border for better visibility */
   margin: 5px;
   /* Add margin for spacing */
   border-radius: 8px;
-  /* Optional: Add rounded corners */
+  /* Add rounded corners */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  /* Optional: Add shadow for better appearance */
+  /* Add shadow for better appearance */
 }
 
 .option-box:hover {
@@ -165,3 +158,62 @@ h1 {
 .mb-4 {
   margin-bottom: 1rem;
 }
+
+button {
+  margin: 10px;
+  padding: 5px 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.add-options-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f8f9fa; /* Matches the bg-light class */
+}
+
+.add-options-card {
+  min-width: 500px;
+  min-height: 300px;
+  padding: 1.5rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.add-options-title {
+  font-size: 36px;
+  color: #333;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.option-box {
+  text-align: center;
+  cursor: pointer;
+}
+
+.option-text {
+  font-size: 24px;
+  color: #007bff; /* Matches Bootstrap's link color */
+}
+
+.option-description {
+  margin-top: 0.5rem;
+  color: #6c757d; /* Matches Bootstrap's muted text */
+}
+
+.option-image {
+  max-width: 100px;
+  height: auto;
+  margin-bottom: 1rem;
+}
+

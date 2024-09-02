@@ -3,13 +3,17 @@ import Navbar from "./Navbar/Navbar";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./login/login";
 import SignUp from "./signup/SignUp";
-import HomePage from "./HomePage";
-import AddOptions from "./AddOptions";
-import SearchOptions from "./SearchOptions";
-import AddProject from "./AddProject/AddProject";
+import HomePage from "./Home/HomePage";
+import AddOptions from "./Add/AddOptions";
+import SearchOptions from "./Browse/SearchOptions";
+import AddProject from "./Add/AddProject";
 import CreateItemsView from "./Browse/CreateItemsView/CreateItemsView";
-import ProjectDetailsView from "./Browse/Views/ProjectDetailsView";
+import HierarchyView from "./Browse/Views/HierarchyView";
 import "./App.css";
+import EditForm from "./Browse/ListItem/EditForm";
+import ProcessedDataView from "./Browse/Views/ProcessedDataView";
+import AddProcessedData from "./Add/AddProcessedData";
+import AddResultForm from "./Add/Forms/AddResultForm";
 
 function App() {
   const [filter, setFilter] = useState("");
@@ -68,7 +72,6 @@ function App() {
               />
             }
           />
-          <Route path="/ProjectDetailsView" element={<ProjectDetailsView />} />
           <Route
             path="/CreateItemsView"
             element={
@@ -82,6 +85,11 @@ function App() {
               />
             }
           />
+          <Route path="/hierarchy-view" element={<HierarchyView />} />
+          <Route path="/edit-form" element={<EditForm />} />
+          <Route path="/processed-data-view" element={<ProcessedDataView />} />
+          <Route path="/AddProcessedData" element={<AddProcessedData />} />
+          <Route path="/add-result-form" element={<AddResultForm />} />
         </Routes>
       </div>
     </BrowserRouter>

@@ -1,16 +1,29 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import "./App.css"; 
+import projects from "../Data/projects.json";
+import "../App.css";
 
-function AddOptions() {
+function SearchOptions() {
   const navigate = useNavigate();
 
   const handleProjectClick = () => {
-    navigate("/AddProject");
+    navigate("/hierarchy-view", {
+      state: { items: projects, level: "projects" },
+    });
   };
 
   const handlePDataClick = () => {
-    navigate("/"); // Add the correct route here
+    const allResults = projects.flatMap((project) =>
+      project.research_questions.flatMap((question) =>
+        question.experiments.flatMap((experiment) =>
+          experiment.samples.flatMap((sample) => sample.results)
+        )
+      )
+    );
+
+    navigate("/processed-data-view", {
+      state: { items: allResults, level: "results" },
+    });
   };
 
   return (
@@ -18,38 +31,38 @@ function AddOptions() {
       <div className="background-layer">
         <div
           className="card p-4 shadow card-custom"
-          style={{ minWidth: "500px", minHeight: "300px" }}
+          style={{ minWidth: "500px", minHeight: "200px" }}
         >
           <div className="d-flex flex-column align-items-center">
             <h2
               className="app-name mb-2"
               style={{ fontSize: "36px", color: "#333", textAlign: "center" }}
             >
-              What would you like to add?
+              Choose your database
             </h2>
             <div
               className="row justify-content-center mt-4"
               style={{ width: "100%" }}
             >
-              <div className="col-12 col-md-6 d-flex justify-content-center">
+              <div className="col-12 col-md-4 d-flex justify-content-center">
                 <div className="option-box" onClick={handleProjectClick}>
                   <img
-                    src="./folder-plus.svg"
-                    alt="Add Project"
+                    src="./archive.svg"
+                    alt="Projects"
                     className="option-image"
                   />
                   <button
                     className="btn btn-link option-text"
                     style={{ fontSize: "24px" }}
                   >
-                    A new project
+                    Projects
                   </button>
                   <div className="option-description">
-                    Add a new project or a sub part of an existing project.
+                    Search through all projects.
                   </div>
                 </div>
               </div>
-              <div className="col-12 col-md-6 d-flex justify-content-center">
+              <div className="col-12 col-md-4 d-flex justify-content-center">
                 <div className="option-box" onClick={handlePDataClick}>
                   <img
                     src="./bar-chart-line.svg"
@@ -60,10 +73,10 @@ function AddOptions() {
                     className="btn btn-link option-text"
                     style={{ fontSize: "24px" }}
                   >
-                    Processed data
+                    Processed Data
                   </button>
                   <div className="option-description">
-                    Add new processed data to your lab inventory.
+                    Search through processed data.
                   </div>
                 </div>
               </div>
@@ -75,4 +88,4 @@ function AddOptions() {
   );
 }
 
-export default AddOptions;
+export default SearchOptions;

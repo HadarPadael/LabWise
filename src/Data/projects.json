@@ -1,353 +1,326 @@
 [
-  {
-    "project_name": "Project A",
-    "free_description": "This is project A.",
-    "official_name": "P1",
-    "creator_name": "Creator A",
-    "creation_date": "2023-01-01",
-    "research_questions": [
-      {
-        "question": "Research Question A1",
-        "free_description": "This is Research Question A1",
-        "official_name": "Q1",
+    {
+        "project_name": "Project A",
+        "free_description": "This is project A.",
+        "official_name": "P1",
         "creator_name": "Creator A",
-        "creation_date": "2023-01-02",
-        "experiments": [
-          {
-            "experiment_id": 1,
-            "number_of_samples": 2,
-            "model_animal": "Mouse",
-            "age": "Adult",
-            "animal_species": "Mus musculus",
-            "free_description": "This is experiment number 1 of Research Question A1.",
-            "official_name": "Exp1",
-            "creator_name": "Creator A",
-            "creation_date": "2023-01-03",
-            "samples": [
-              {
-                "sample_id": 1,
-                "description": "Sample description 1",
-                "readouts": [
-                  {
-                    "readout_name": "readout1",
-                    "description": "Description of readout1"
-                  },
-                  {
-                    "readout_name": "readout2",
-                    "description": "Description of readout2"
-                  },
-                  {
-                    "readout_name": "readout3",
-                    "description": "Description of readout3"
-                  }
+        "creation_date": "2023-01-01",
+        "research_questions": [
+            {
+                "question": "Research Question A1",
+                "free_description": "This is Research Question A1",
+                "official_name": "Q1",
+                "creator_name": "Creator A",
+                "creation_date": "2023-01-02",
+                "experiments": [
+                    {
+                        "experiment_id": 1.11,
+                        "number_of_samples": 2,
+                        "model_animal": "Mouse",
+                        "age": "Adult",
+                        "animal_species": "Mus musculus",
+                        "free_description": "This is experiment number 1 of Research Question A1.",
+                        "official_name": "Exp1",
+                        "creator_name": "Creator A",
+                        "creation_date": "2023-01-03",
+                        "samples": [
+                            {
+                                "sample_id": 1111,
+                                "description": "Sample description",
+                                "results": [
+                                    {
+                                        "type": "readout",
+                                        "file_name": "readout1111.1",
+                                        "file_link": "/src/Data/files/readout1111.1.csv"
+                                    },
+                                    {
+                                        "type": "chart",
+                                        "file_name": "chart1111.1",
+                                        "file_link": "/src/Data/files/chart1111.1.png"
+                                    }
+                                ]
+                            },
+                            {
+                                "sample_id": 1112,
+                                "description": "Sample description",
+                                "results": [
+                                    {
+                                        "type": "readout",
+                                        "file_name": "readout1112.1",
+                                        "file_link": "/src/Data/files/readout1112.1.csv"
+                                    },
+                                    {
+                                        "type": "chart",
+                                        "file_name": "chart1112.1",
+                                        "file_link": "/src/Data/files/chart1112.1.png"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "experiment_id": 1.12,
+                        "number_of_samples": 2,
+                        "model_animal": "Rat",
+                        "age": "Young",
+                        "animal_species": "Rattus norvegicus",
+                        "free_description": "This is experiment number 2 of Research Question A1.",
+                        "official_name": "Exp2",
+                        "creator_name": "Creator B",
+                        "creation_date": "2023-01-04",
+                        "samples": [
+                            {
+                                "sample_id": 1121,
+                                "description": "Sample description",
+                                "results": [
+                                    {
+                                        "type": "readout",
+                                        "file_name": "readout1121.1",
+                                        "file_link": "/src/Data/files/readout1121.1.csv"
+                                    },
+                                    {
+                                        "type": "chart",
+                                        "file_name": "chart1121.1",
+                                        "file_link": "/src/Data/files/chart1121.1.png"
+                                    }
+                                ]
+                            },
+                            {
+                                "sample_id": 1122,
+                                "description": "Sample description",
+                                "results": [
+                                    {
+                                        "type": "readout",
+                                        "file_name": "readout1122.1",
+                                        "file_link": "/src/Data/files/readout1122.1.csv"
+                                    },
+                                    {
+                                        "type": "chart",
+                                        "file_name": "chart1122.1",
+                                        "file_link": "/src/Data/files/chart1122.1.png"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
                 ]
-              },
-              {
-                "sample_id": 2,
-                "description": "Sample description 2",
-                "readouts": [
-                  {
-                    "readout_name": "readout1",
-                    "description": "Description of readout1"
-                  },
-                  {
-                    "readout_name": "readout2",
-                    "description": "Description of readout2"
-                  },
-                  {
-                    "readout_name": "readout3",
-                    "description": "Description of readout3"
-                  }
+            },
+            {
+                "question": "Research Question A2",
+                "free_description": "This is Research Question A2",
+                "official_name": "Q2",
+                "creator_name": "Creator B",
+                "creation_date": "2023-01-05",
+                "experiments": [
+                    {
+                        "experiment_id": 1.21,
+                        "number_of_samples": 25,
+                        "model_animal": "Human",
+                        "age": "Adult",
+                        "animal_species": "Homo sapiens",
+                        "free_description": "Description of human experiment, experiment number 1 of Research Question A2.",
+                        "official_name": "Exp1",
+                        "creator_name": "Creator B",
+                        "creation_date": "2023-01-06",
+                        "samples": [
+                            {
+                                "sample_id": 1211,
+                                "description": "Sample description",
+                                "results": [
+                                    {
+                                        "type": "readout",
+                                        "file_name": "readout1211.1",
+                                        "file_link": "/src/Data/files/readout1211.1.csv"
+                                    },
+                                    {
+                                        "type": "chart",
+                                        "file_name": "chart1211.1",
+                                        "file_link": "/src/Data/files/chart1211.1.png"
+                                    }
+                                ]
+                            },
+                            {
+                                "sample_id": 1212,
+                                "description": "Sample description",
+                                "results": [
+                                    {
+                                        "type": "readout",
+                                        "file_name": "readout1212.1",
+                                        "file_link": "/src/Data/files/readout1212.1.csv"
+                                    },
+                                    {
+                                        "type": "chart",
+                                        "file_name": "chart1212.1",
+                                        "file_link": "/src/Data/files/chart1212.1.png"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
                 ]
-              }
-            ]
-          },
-          {
-            "experiment_id": 2,
-            "number_of_samples": 2,
-            "model_animal": "Rat",
-            "age": "Young",
-            "animal_species": "Rattus norvegicus",
-            "free_description": "This is experiment number 2 of Research Question A1.",
-            "official_name": "Exp2",
-            "creator_name": "Creator B",
-            "creation_date": "2023-01-04",
-            "samples": [
-              {
-                "sample_id": 1,
-                "description": "Sample description 3",
-                "readouts": [
-                  {
-                    "readout_name": "readout1",
-                    "description": "Description of readout1"
-                  },
-                  {
-                    "readout_name": "readout2",
-                    "description": "Description of readout2"
-                  }
-                ]
-              },
-              {
-                "sample_id": 2,
-                "description": "Sample description 4",
-                "readouts": [
-                  {
-                    "readout_name": "readout1",
-                    "description": "Description of readout1"
-                  },
-                  {
-                    "readout_name": "readout2",
-                    "description": "Description of readout2"
-                  }
-                ]
-              }
-            ]
-          }
+            }
         ]
-      },
-      {
-        "question": "Research Question A2",
-        "free_description": "This is Research Question A2",
-        "official_name": "Q2",
-        "creator_name": "Creator B",
-        "creation_date": "2023-01-05",
-        "experiments": [
-          {
-            "experiment_id": 3,
-            "number_of_samples": 25,
-            "model_animal": "Human",
-            "age": "Adult",
-            "animal_species": "Homo sapiens",
-            "free_description": "Description of human experiment, experiment number 1 of Research Question A2.",
-            "official_name": "Exp1",
-            "creator_name": "Creator B",
-            "creation_date": "2023-01-06",
-            "samples": [
-              {
-                "sample_id": 1,
-                "description": "Sample description 5",
-                "readouts": [
-                  {
-                    "readout_name": "readout1",
-                    "description": "Description of readout1"
-                  },
-                  {
-                    "readout_name": "readout2",
-                    "description": "Description of readout2"
-                  },
-                  {
-                    "readout_name": "readout3",
-                    "description": "Description of readout3"
-                  },
-                  {
-                    "readout_name": "readout4",
-                    "description": "Description of readout4"
-                  }
+    },
+    {
+        "project_name": "Project B",
+        "free_description": "This is project B.",
+        "official_name": "P2",
+        "creator_name": "Creator C",
+        "creation_date": "2023-01-01",
+        "research_questions": [
+            {
+                "question": "Research Question B1",
+                "free_description": "This is Research Question B1",
+                "official_name": "Q1",
+                "creator_name": "Creator A",
+                "creation_date": "2023-01-02",
+                "experiments": [
+                    {
+                        "experiment_id": 2.11,
+                        "number_of_samples": 2,
+                        "model_animal": "Mouse",
+                        "age": "Adult",
+                        "animal_species": "Mus musculus",
+                        "free_description": "This is experiment number 1 of Research Question B1.",
+                        "official_name": "Exp1",
+                        "creator_name": "Creator A",
+                        "creation_date": "2023-01-03",
+                        "samples": [
+                            {
+                                "sample_id": 2111,
+                                "description": "Sample description",
+                                "results": [
+                                    {
+                                        "type": "readout",
+                                        "file_name": "readout2111.1",
+                                        "file_link": "/src/Data/files/readout2111.1.csv"
+                                    },
+                                    {
+                                        "type": "chart",
+                                        "file_name": "chart2111.1",
+                                        "file_link": "/src/Data/files/chart2111.1.png"
+                                    }
+                                ]
+                            },
+                            {
+                                "sample_id": 2112,
+                                "description": "Sample description",
+                                "results": [
+                                    {
+                                        "type": "readout",
+                                        "file_name": "readout2112.1",
+                                        "file_link": "/src/Data/files/readout2112.1.csv"
+                                    },
+                                    {
+                                        "type": "chart",
+                                        "file_name": "chart2112.1",
+                                        "file_link": "/src/Data/files/chart2112.1.png"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "experiment_id": 2.12,
+                        "number_of_samples": 2,
+                        "model_animal": "Rat",
+                        "age": "Young",
+                        "animal_species": "Rattus norvegicus",
+                        "free_description": "This is experiment number 2 of Research Question B1.",
+                        "official_name": "Exp2",
+                        "creator_name": "Creator B",
+                        "creation_date": "2023-01-04",
+                        "samples": [
+                            {
+                                "sample_id": 2121,
+                                "description": "Sample description",
+                                "results": [
+                                    {
+                                        "type": "readout",
+                                        "file_name": "readout2121.1",
+                                        "file_link": "/src/Data/files/readout2121.1.csv"
+                                    },
+                                    {
+                                        "type": "chart",
+                                        "file_name": "chart2121.1",
+                                        "file_link": "/src/Data/files/chart2121.1.png"
+                                    }
+                                ]
+                            },
+                            {
+                                "sample_id": 2122,
+                                "description": "Sample description",
+                                "results": [
+                                    {
+                                        "type": "readout",
+                                        "file_name": "readout2122.1",
+                                        "file_link": "/src/Data/files/readout2122.1.csv"
+                                    },
+                                    {
+                                        "type": "chart",
+                                        "file_name": "chart2122.1",
+                                        "file_link": "/src/Data/files/chart2122.1.png"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
                 ]
-              },
-              {
-                "sample_id": 2,
-                "description": "Sample description 6",
-                "readouts": [
-                  {
-                    "readout_name": "readout1",
-                    "description": "Description of readout1"
-                  },
-                  {
-                    "readout_name": "readout2",
-                    "description": "Description of readout2"
-                  },
-                  {
-                    "readout_name": "readout3",
-                    "description": "Description of readout3"
-                  },
-                  {
-                    "readout_name": "readout4",
-                    "description": "Description of readout4"
-                  }
+            },
+            {
+                "question": "Research Question B2",
+                "free_description": "This is Research Question B2",
+                "official_name": "Q2",
+                "creator_name": "Creator B",
+                "creation_date": "2023-01-05",
+                "experiments": [
+                    {
+                        "experiment_id": 2.21,
+                        "number_of_samples": 25,
+                        "model_animal": "Human",
+                        "age": "Adult",
+                        "animal_species": "Homo sapiens",
+                        "free_description": "Description of human experiment, experiment number 1 of Research Question B2.",
+                        "official_name": "Exp1",
+                        "creator_name": "Creator B",
+                        "creation_date": "2023-01-06",
+                        "samples": [
+                            {
+                                "sample_id": 2211,
+                                "description": "Sample description",
+                                "results": [
+                                    {
+                                        "type": "readout",
+                                        "file_name": "readout2211.1",
+                                        "file_link": "/src/Data/files/readout2211.1.csv"
+                                    },
+                                    {
+                                        "type": "chart",
+                                        "file_name": "chart2211.1",
+                                        "file_link": "/src/Data/files/chart2211.1.png"
+                                    }
+                                ]
+                            },
+                            {
+                                "sample_id": 2212,
+                                "description": "Sample description",
+                                "results": [
+                                    {
+                                        "type": "readout",
+                                        "file_name": "readout2212.1",
+                                        "file_link": "/src/Data/files/readout2212.1.csv"
+                                    },
+                                    {
+                                        "type": "chart",
+                                        "file_name": "chart2212.1",
+                                        "file_link": "/src/Data/files/chart2212.1.png"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
                 ]
-              }
-            ]
-          }
+            }
         ]
-      }
-    ]
-  },
-
-  {
-    "project_name": "Project B",
-    "free_description": "This is project B.",
-    "official_name": "P2",
-    "creator_name": "Creator C",
-    "creation_date": "2023-01-01",
-    "research_questions": [
-      {
-        "question": "Research Question B1",
-        "free_description": "This is Research Question B1",
-        "official_name": "Q1",
-        "creator_name": "Creator A",
-        "creation_date": "2023-01-02",
-        "experiments": [
-          {
-            "experiment_id": 1,
-            "number_of_samples": 2,
-            "model_animal": "Mouse",
-            "age": "Adult",
-            "animal_species": "Mus musculus",
-            "free_description": "This is experiment number 1 of Research Question B1.",
-            "official_name": "Exp1",
-            "creator_name": "Creator A",
-            "creation_date": "2023-01-03",
-            "samples": [
-              {
-                "sample_id": 1,
-                "description": "Sample description 1",
-                "readouts": [
-                  {
-                    "readout_name": "readout1",
-                    "description": "Description of readout1"
-                  },
-                  {
-                    "readout_name": "readout2",
-                    "description": "Description of readout2"
-                  },
-                  {
-                    "readout_name": "readout3",
-                    "description": "Description of readout3"
-                  }
-                ]
-              },
-              {
-                "sample_id": 2,
-                "description": "Sample description 2",
-                "readouts": [
-                  {
-                    "readout_name": "readout1",
-                    "description": "Description of readout1"
-                  },
-                  {
-                    "readout_name": "readout2",
-                    "description": "Description of readout2"
-                  },
-                  {
-                    "readout_name": "readout3",
-                    "description": "Description of readout3"
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "experiment_id": 2,
-            "number_of_samples": 2,
-            "model_animal": "Rat",
-            "age": "Young",
-            "animal_species": "Rattus norvegicus",
-            "free_description": "This is experiment number 2 of Research Question B1.",
-            "official_name": "Exp2",
-            "creator_name": "Creator B",
-            "creation_date": "2023-01-04",
-            "samples": [
-              {
-                "sample_id": 1,
-                "description": "Sample description 3",
-                "readouts": [
-                  {
-                    "readout_name": "readout1",
-                    "description": "Description of readout1"
-                  },
-                  {
-                    "readout_name": "readout2",
-                    "description": "Description of readout2"
-                  }
-                ]
-              },
-              {
-                "sample_id": 2,
-                "description": "Sample description 4",
-                "readouts": [
-                  {
-                    "readout_name": "readout1",
-                    "description": "Description of readout1"
-                  },
-                  {
-                    "readout_name": "readout2",
-                    "description": "Description of readout2"
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "question": "Research Question B2",
-        "free_description": "This is Research Question B2",
-        "official_name": "Q2",
-        "creator_name": "Creator B",
-        "creation_date": "2023-01-05",
-        "experiments": [
-          {
-            "experiment_id": 3,
-            "number_of_samples": 25,
-            "model_animal": "Human",
-            "age": "Adult",
-            "animal_species": "Homo sapiens",
-            "free_description": "Description of human experiment, experiment number 1 of Research Question B2.",
-            "official_name": "Exp1",
-            "creator_name": "Creator B",
-            "creation_date": "2023-01-06",
-            "samples": [
-              {
-                "sample_id": 1,
-                "description": "Sample description 5",
-                "readouts": [
-                  {
-                    "readout_name": "readout1",
-                    "description": "Description of readout1"
-                  },
-                  {
-                    "readout_name": "readout2",
-                    "description": "Description of readout2"
-                  },
-                  {
-                    "readout_name": "readout3",
-                    "description": "Description of readout3"
-                  },
-                  {
-                    "readout_name": "readout4",
-                    "description": "Description of readout4"
-                  }
-                ]
-              },
-              {
-                "sample_id": 2,
-                "description": "Sample description 6",
-                "readouts": [
-                  {
-                    "readout_name": "readout1",
-                    "description": "Description of readout1"
-                  },
-                  {
-                    "readout_name": "readout2",
-                    "description": "Description of readout2"
-                  },
-                  {
-                    "readout_name": "readout3",
-                    "description": "Description of readout3"
-                  },
-                  {
-                    "readout_name": "readout4",
-                    "description": "Description of readout4"
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  }
-
-
+    }
 ]
