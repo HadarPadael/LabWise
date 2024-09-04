@@ -8,7 +8,7 @@ function ListItem({ name, items, onClick, level, onRemove }) {
   const navigate = useNavigate();
 
   const handleDownload = async () => {
-    if (level === "Results" || "Processed Data") {
+    if (level === "Results" || level === "Processed Data") {
       try {
         const response = await fetch(items.file_link);
         if (response.ok) {
