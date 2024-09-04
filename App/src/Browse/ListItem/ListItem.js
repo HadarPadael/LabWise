@@ -1,19 +1,28 @@
-import React from "react";
+import React, { useState } from "react";
 import { FaEye, FaDownload, FaTrash, FaEdit } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
+import Modal from "./Modal";
 
 function ListItem({ name, items, onClick, level, onRemove }) {
   const navigate = useNavigate();
+  const [showModal, setShowModal] = useState(false); // Modal state
+  const [modalContent, setModalContent] = useState(""); // Content for the modal
+
+  // Function to handle showing the description in the modal
+  const handleViewDescription = (description) => {
+    setModalContent(description);
+    setShowModal(true); // Open modal
+  };
 
   const handleDownload = async () => {
-    if (level === "Results" || level === "Processed Data") {
+    if (level === "Results" || level == "Processed Data") {
       try {
-        const response = await fetch(items.file_link);
+        const response = await fetch(items.file_path);
         if (response.ok) {
           const blob = await response.blob();
-          saveAs(blob, items.file_link.split("/").pop());
+          saveAs(blob, items.file_path.split("/").pop());
         } else {
           console.error("Failed to download file.");
         }
@@ -42,23 +51,23 @@ function ListItem({ name, items, onClick, level, onRemove }) {
         await addItemsToZip(folder, experiment, "Experiments");
       }
     } else if (level === "Experiments") {
-      folder = zip.folder(`Experiment_${item.experiment_id}`);
+      folder = zip.folder(item.experiment_id);
       for (const sample of item.samples) {
         await addItemsToZip(folder, sample, "Samples");
       }
     } else if (level === "Samples") {
-      folder = zip.folder(`Sample_${item.sample_id}`);
+      folder = zip.folder(item.sample_id);
       for (const result of item.results) {
         try {
-          const response = await fetch(result.file_link);
+          const response = await fetch(result.file_path);
           if (response.ok) {
             const blob = await response.blob();
-            folder.file(result.file_link.split("/").pop(), blob);
+            folder.file(result.file_path.split("/").pop(), blob);
           } else {
-            console.error(`Failed to fetch ${result.file_link}`);
+            console.error(`Failed to fetch ${result.file_path}`);
           }
         } catch (error) {
-          console.error(`Error fetching ${result.file_link}:`, error);
+          console.error(`Error fetching ${result.file_path}:`, error);
         }
       }
     }
@@ -77,51 +86,48 @@ function ListItem({ name, items, onClick, level, onRemove }) {
   };
 
   const getDescription = (level, item) => {
-    switch (level) {
-      case "Projects":
-        return `Project Name: ${item.project_name}\nFree Description: ${item.free_description}\nOfficial Name: ${item.official_name}\nCreator Name: ${item.creator_name}\nCreation Date: ${item.creation_date}`;
-      case "Research Questions":
-        return `Question: ${item.question}\nFree Description: ${item.free_description}\nOfficial Name: ${item.official_name}\nCreator Name: ${item.creator_name}\nCreation Date: ${item.creation_date}`;
-      case "Experiments":
-        return `Experiment ID: ${item.experiment_id}\nNumber of Samples: ${item.number_of_samples}\nModel Animal: ${item.model_animal}\nAnimal Species: ${item.animal_species}\nFree Description: ${item.free_description}\nOfficial Name: ${item.official_name}\nCreator Name: ${item.creator_name}\nCreation Date: ${item.creation_date}`;
-      case "Samples":
-        return `Sample ID: ${item.sample_id}\nDescription: ${item.description}`;
-      case "Results":
-        return `Type: ${item.type}`;
-      default:
-        return "No Description Available";
+    if (item?.description) {
+      return `${item.description}`;
+    } else {
+      return "No Description Available";
     }
   };
 
   return (
-    <li
-      className="list-group-item d-flex justify-content-between align-items-center"
-      style={{ cursor: "pointer" }}
-    >
-      <span
-        style={{ color: "blue", textDecoration: "underline" }}
-        onClick={onClick}
+    <>
+      <li
+        className="list-group-item d-flex justify-content-between align-items-center"
+        style={{ cursor: "pointer" }}
       >
-        {name}
-      </span>
-      <div>
-        <button
-          className="btn btn-sm btn-primary me-2"
-          onClick={() => alert(getDescription(level, items))}
+        <span
+          style={{ color: "blue", textDecoration: "underline" }}
+          onClick={onClick}
         >
-          <FaEye /> View Description
-        </button>
-        <button className="btn btn-sm btn-warning me-2" onClick={handleEdit}>
-          <FaEdit /> Edit
-        </button>
-        <button className="btn btn-sm btn-danger me-2" onClick={handleRemove}>
-          <FaTrash /> Remove
-        </button>
-        <button className="btn btn-sm btn-success" onClick={handleDownload}>
-          <FaDownload /> Download
-        </button>
-      </div>
-    </li>
+          {name}
+        </span>
+        <div>
+          <button
+            className="btn btn-sm btn-primary me-2"
+            onClick={() => handleViewDescription(getDescription(level, items))}
+          >
+            <FaEye /> View Description
+          </button>
+          <button className="btn btn-sm btn-warning me-2" onClick={handleEdit}>
+            <FaEdit /> Edit
+          </button>
+          <button className="btn btn-sm btn-danger me-2" onClick={handleRemove}>
+            <FaTrash /> Remove
+          </button>
+          <button className="btn btn-sm btn-success" onClick={handleDownload}>
+            <FaDownload /> Download
+          </button>
+        </div>
+      </li>
+
+      {showModal && (
+        <Modal onClose={() => setShowModal(false)} content={modalContent} />
+      )}
+    </>
   );
 }
 

@@ -12,6 +12,7 @@ function ItemsView({
   title,
   showAddButton = true,
 }) {
+  console.log(items);
   const [filteredItems, setFilteredItems] = useState(items);
   const navigate = useNavigate();
 
@@ -61,6 +62,7 @@ function ItemsView({
       items={item}
       key={key}
       level={title}
+      description={item.description} // Make sure this is passed
       onClick={() => onItemClick(item)}
       onRemove={handleRemove}
     />

@@ -1,0 +1,9 @@
+
+            Experiment ID: 2.12
+            Free Description: This is experiment number 2 of Research Question B1.
+            Official Name: Exp2
+            Creator Name: Creator B
+            Creation Date: 2023-01-04
+            Model Animal: Rat
+            Animal Species: Rattus norvegicus
+            
