@@ -3,7 +3,7 @@ const fetch = require("isomorphic-fetch");
 
 // Initialize Dropbox SDK
 const dbx = new Dropbox({
-  accessToken: process.env.DROPBOX_ACCESS_TOKEN, // Use your Dropbox access token
+  accessToken: process.env.DROPBOX_ACCESS_TOKEN, // Dropbox access token
   fetch: fetch,
 });
 
@@ -55,6 +55,7 @@ const buildProjectStructure = async (rootFolder) => {
   try {
     const projects = await listDropboxFolder(rootFolder);
     let projectStructure = [];
+    const processedProjects = new Set(); // Track processed project names
 
     // Helper function to retrieve description
     const getDescription = async (folderPath) => {
@@ -69,7 +70,10 @@ const buildProjectStructure = async (rootFolder) => {
     };
 
     for (const project of projects) {
-      if (project[".tag"] === "folder") {
+      if (project[".tag"] === "folder" && !processedProjects.has(project.name)) {
+        // Add the project to the set
+        processedProjects.add(project.name);
+
         // Get the description for the project
         const projectDescription = await getDescription(project.path_lower);
 
@@ -158,9 +162,12 @@ const buildProjectStructure = async (rootFolder) => {
           description: projectDescription,
           research_questions: researchQuestionsArr,
         });
+      } else {
+        console.log(`Project "${project.name}" has already been processed, skipping.`);
       }
     }
 
+    console.log(projectStructure);
     return projectStructure; // This structure matches the JSON format
   } catch (error) {
     console.error("Error building project structure:", error);

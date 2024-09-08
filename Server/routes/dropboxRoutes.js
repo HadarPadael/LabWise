@@ -2,6 +2,7 @@ const express = require("express");
 const {
   getProjects,
   downloadFile,
+  loadToDB,
   addFile,
   editDescription,
 } = require("../controllers/dropboxController");
@@ -9,7 +10,8 @@ const {
 const router = express.Router();
 
 // List all projects
-router.get("/projects", getProjects);
+router.post("/loadToDB", loadToDB); // POST to load data to DB
+router.get("/projects", getProjects); // GET projects from the DB
 
 // Download a specific file from Dropbox
 router.get("/download/:filePath", downloadFile);

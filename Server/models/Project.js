@@ -1,32 +1,33 @@
 const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
-const ResultSchema = new mongoose.Schema({
-  file_name: String,
-  file_path: String,
+const resultSchema = new Schema({
+  file_name: { type: String, required: true, unique: true },
+  file_path: { type: String, required: true },
 });
 
-const SampleSchema = new mongoose.Schema({
-  name: String,
-  description: String,
-  results: [ResultSchema],
+const sampleSchema = new Schema({
+  sample_id: { type: String, required: true, unique: true },
+  description: { type: String, required: true },
+  results: [resultSchema],
 });
 
-const ExperimentSchema = new mongoose.Schema({
-  name: String,
-  description: String,
-  samples: [SampleSchema],
+const experimentSchema = new Schema({
+  experiment_id: { type: String, required: true, unique: true },
+  description: { type: String, required: true },
+  samples: [sampleSchema],
 });
 
-const ResearchQuestionSchema = new mongoose.Schema({
-  name: String,
-  description: String,
-  experiments: [ExperimentSchema],
+const researchQuestionSchema = new Schema({
+  question: { type: String, required: true, unique: true },
+  description: { type: String, required: true },
+  experiments: [experimentSchema],
 });
 
-const ProjectSchema = new mongoose.Schema({
-  name: String,
-  description: String,
-  research_questions: [ResearchQuestionSchema],
+const projectSchema = new Schema({
+  project_name: { type: String, required: true, unique: true }, 
+  description: { type: String, required: true },
+  research_questions: [researchQuestionSchema],
 });
 
-module.exports = mongoose.model("Project", ProjectSchema);
+module.exports = mongoose.model("Project", projectSchema);

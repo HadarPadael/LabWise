@@ -5,14 +5,58 @@ const {
   buildProjectStructure,
 } = require("../services/dropboxService");
 
+const Project = require("../models/Project");
+
+exports.loadToDB = async (req, res) => {
+  try {
+    // Check if there are any projects in the database
+    const existingProjects = await Project.find({});
+
+    if (existingProjects.length > 0) {
+      console.log("Projects already exist in the database.");
+      return res.status(200).send("Projects already exist in the database.");
+    }
+
+    // If no projects exist, proceed to load the data
+    const projects = await buildProjectStructure("/LabWise");
+
+    for (const project of projects) {
+      await Project.create({
+        project_name: project.project_name,
+        description: project.description,
+        research_questions: project.research_questions.map((rq) => ({
+          question: rq.question,
+          description: rq.description,
+          experiments: rq.experiments.map((exp) => ({
+            experiment_id: exp.experiment_id,
+            description: exp.description,
+            samples: exp.samples.map((sample) => ({
+              sample_id: sample.sample_id,
+              description: sample.description,
+              results: sample.results.map((result) => ({
+                file_name: result.file_name,
+                file_path: result.file_path,
+              })),
+            })),
+          })),
+        })),
+      });
+    }
+
+    res.status(200).send("Data successfully loaded to the database.");
+  } catch (error) {
+    console.error("Error loading data to the database:", error);
+    res.status(500).send("Error loading data to the database.");
+  }
+};
+
 exports.getProjects = async (req, res) => {
   try {
-    const projectStructure = await buildProjectStructure("/LabWise"); // Path to your root Dropbox folder
-    console.log(JSON.stringify(projectStructure, null, 2));
-    res.status(200).json(projectStructure);
+    const projects = await Project.find();
+    res.status(200).json({ projects });
   } catch (error) {
-    console.error("Error fetching projects from Dropbox:", error);
-    res.status(500).json({ error: "Failed to retrieve projects" });
+    console.error("Error fetching projects:", error);
+    res.status(500).json({ error: "Failed to fetch projects" });
   }
 };
 
