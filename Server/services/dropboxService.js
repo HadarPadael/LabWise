@@ -18,17 +18,6 @@ const listDropboxFolder = async (folderPath) => {
   }
 };
 
-// Download a specific file from Dropbox
-const downloadFileFromDropbox = async (filePath) => {
-  try {
-    const response = await dbx.filesDownload({ path: filePath });
-    return response.result.fileBinary; // Return the file content
-  } catch (error) {
-    console.error("Error downloading file:", error);
-    throw error;
-  }
-};
-
 // Upload a new file to Dropbox
 const uploadFileToDropbox = async (filePath, fileContents) => {
   try {
@@ -44,10 +33,20 @@ const uploadFileToDropbox = async (filePath, fileContents) => {
   }
 };
 
-// Edit the description.txt file for a given folder
-const editDescriptionInDropbox = async (folderPath, descriptionContent) => {
-  const descriptionFilePath = `${folderPath}/description.txt`;
-  return await uploadFileToDropbox(descriptionFilePath, descriptionContent);
+// Service function to update the description.txt file in Dropbox
+const updateDescriptionInDropbox = async (path, description) => {
+  try {
+    // Upload new content to description.txt in Dropbox
+    const response = await dbx.filesUpload({
+      path: `${path}/description.txt`,  // Ensure the correct file path is provided
+      mode: { ".tag": "overwrite" },    // Overwrite the current description.txt file
+      contents: description,            // Pass the updated description content
+    });
+    return response;
+  } catch (error) {
+    console.error("Error in Dropbox API:", error.message || error);
+    throw error; // Throw error to be caught by the controller
+  }
 };
 
 // Function to list and build the project structure
@@ -70,100 +69,100 @@ const buildProjectStructure = async (rootFolder) => {
     };
 
     for (const project of projects) {
-      if (project[".tag"] === "folder" && !processedProjects.has(project.name)) {
-        // Add the project to the set
+      if (
+        project[".tag"] === "folder" &&
+        !processedProjects.has(project.name)
+      ) {
         processedProjects.add(project.name);
 
-        // Get the description for the project
+        // Get the description and path for the project
         const projectDescription = await getDescription(project.path_lower);
+        const projectPath = project.path_lower;
 
-        // For each project folder
         const researchQuestions = await listDropboxFolder(project.path_lower);
         let researchQuestionsArr = [];
 
         for (const question of researchQuestions) {
           if (question[".tag"] === "folder") {
-            // Get the description for the research question
             const questionDescription = await getDescription(
               question.path_lower
             );
+            const questionPath = question.path_lower; // Add path
 
-            // For each research question folder
             const experiments = await listDropboxFolder(question.path_lower);
             let experimentsArr = [];
 
             for (const experiment of experiments) {
               if (experiment[".tag"] === "folder") {
-                // Get the description for the experiment
                 const experimentDescription = await getDescription(
                   experiment.path_lower
                 );
+                const experimentPath = experiment.path_lower; // Add path
 
-                // For each experiment folder
                 const samples = await listDropboxFolder(experiment.path_lower);
                 let samplesArr = [];
 
                 for (const sample of samples) {
                   if (sample[".tag"] === "folder") {
-                    // Get the description for the sample
                     const sampleDescription = await getDescription(
                       sample.path_lower
                     );
+                    const samplePath = sample.path_lower; // Add path
 
-                    // For each sample folder
                     const sampleFiles = await listDropboxFolder(
                       sample.path_lower
                     );
                     let resultFilesArr = [];
 
-                    // Store files separately from description.txt
                     for (const file of sampleFiles) {
-                      if (file[".tag"] === "file") {
-                        // Skip description.txt and add the other files as results
-                        if (file.name !== "description.txt") {
-                          resultFilesArr.push({
-                            file_name: file.name,
-                            file_path: file.path_lower,
-                          });
-                        }
+                      if (
+                        file[".tag"] === "file" &&
+                        file.name !== "description.txt"
+                      ) {
+                        resultFilesArr.push({
+                          file_name: file.name,
+                          file_path: file.path_lower,
+                        });
                       }
                     }
 
-                    // Push the sample folder with its results and description
                     samplesArr.push({
                       sample_id: sample.name,
                       description: sampleDescription,
-                      results: resultFilesArr, // Use results instead of generic files
+                      path: samplePath, // Add path
+                      results: resultFilesArr,
                     });
                   }
                 }
 
-                // Push the experiment folder with its samples and description
                 experimentsArr.push({
                   experiment_id: experiment.name,
                   description: experimentDescription,
+                  path: experimentPath, // Add path
                   samples: samplesArr,
                 });
               }
             }
 
-            // Push the research question folder with its experiments and description
             researchQuestionsArr.push({
               question: question.name,
               description: questionDescription,
+              path: questionPath, // Add path
               experiments: experimentsArr,
             });
           }
         }
 
-        // Push the project folder with its research questions and description
         projectStructure.push({
           project_name: project.name,
           description: projectDescription,
+          path: projectPath, // Add path
           research_questions: researchQuestionsArr,
         });
       } else {
-        console.log(`Project "${project.name}" has already been processed, skipping.`);
+        console.log(
+          `Project "${project.name}" has already been processed, skipping.`
+        );
       }
     }
 
@@ -179,7 +178,6 @@ const buildProjectStructure = async (rootFolder) => {
 module.exports = {
   buildProjectStructure,
   listDropboxFolder,
-  downloadFileFromDropbox,
   uploadFileToDropbox,
-  editDescriptionInDropbox,
+  updateDescriptionInDropbox,
 };

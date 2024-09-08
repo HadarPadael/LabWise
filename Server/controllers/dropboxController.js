@@ -1,7 +1,6 @@
 const {
-  downloadFileFromDropbox,
+  updateDescriptionInDropbox,
   uploadFileToDropbox,
-  editDescriptionInDropbox,
   buildProjectStructure,
 } = require("../services/dropboxService");
 
@@ -21,28 +20,40 @@ exports.loadToDB = async (req, res) => {
     const projects = await buildProjectStructure("/LabWise");
 
     for (const project of projects) {
-      await Project.create({
+      const existingProject = await Project.findOne({
         project_name: project.project_name,
-        description: project.description,
-        research_questions: project.research_questions.map((rq) => ({
-          question: rq.question,
-          description: rq.description,
-          experiments: rq.experiments.map((exp) => ({
-            experiment_id: exp.experiment_id,
-            description: exp.description,
-            samples: exp.samples.map((sample) => ({
-              sample_id: sample.sample_id,
-              description: sample.description,
-              results: sample.results.map((result) => ({
-                file_name: result.file_name,
-                file_path: result.file_path,
+      });
+      if (!existingProject) {
+        await Project.create({
+          project_name: project.project_name,
+          description: project.description,
+          path: project.path, // Add the path field
+          research_questions: project.research_questions.map((rq) => ({
+            question: rq.question,
+            description: rq.description,
+            path: rq.path, // Add the path field
+            experiments: rq.experiments.map((exp) => ({
+              experiment_id: exp.experiment_id,
+              description: exp.description,
+              path: exp.path, // Add the path field
+              samples: exp.samples.map((sample) => ({
+                sample_id: sample.sample_id,
+                description: sample.description,
+                path: sample.path, // Add the path field
+                results: sample.results.map((result) => ({
+                  file_name: result.file_name,
+                  file_path: result.file_path,
+                })),
               })),
             })),
           })),
-        })),
-      });
+        });
+      } else {
+        console.log(
+          `Project "${project.project_name}" already exists, skipping.`
+        );
+      }
     }
-
     res.status(200).send("Data successfully loaded to the database.");
   } catch (error) {
     console.error("Error loading data to the database:", error);
@@ -60,17 +71,6 @@ exports.getProjects = async (req, res) => {
   }
 };
 
-// Download a file from Dropbox
-exports.downloadFile = async (req, res) => {
-  const filePath = `/LabWise/${req.params.filePath}`;
-  try {
-    const file = await downloadFileFromDropbox(filePath);
-    res.status(200).send(file);
-  } catch (error) {
-    res.status(500).json({ error: "Error downloading file from Dropbox" });
-  }
-};
-
 // Add a new file or folder to Dropbox
 exports.addFile = async (req, res) => {
   const { folderPath, fileName, fileContent } = req.body;
@@ -83,13 +83,16 @@ exports.addFile = async (req, res) => {
   }
 };
 
-// Edit a description file in Dropbox
-exports.editDescription = async (req, res) => {
-  const { folderPath, descriptionContent } = req.body;
+// Controller to handle updating the description
+exports.updateDescription = async (req, res) => {
+  const { path, description } = req.body; // Get path and description from request body
+
   try {
-    await editDescriptionInDropbox(folderPath, descriptionContent);
-    res.status(200).json({ message: "Description updated successfully" });
+    // Call the service to update the description
+    await updateDescriptionInDropbox(path, description);
+    res.status(200).json({ message: "Description updated successfully." });
   } catch (error) {
-    res.status(500).json({ error: "Error updating description" });
+    console.error("Error updating description:", error.message || error);
+    res.status(500).json({ message: "Error updating description." });
   }
 };
