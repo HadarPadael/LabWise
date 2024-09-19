@@ -1,7 +1,7 @@
-const jwt = require("jsonwebtoken");
+const admin = require("firebase-admin");
 
-// Verify JWT token middleware
-exports.verifyToken = (req, res, next) => {
+// Verify Firebase ID Token middleware
+exports.verifyToken = async (req, res, next) => {
   const token = req.header("Authorization");
   if (!token) {
     return res
@@ -10,10 +10,12 @@ exports.verifyToken = (req, res, next) => {
   }
 
   try {
-    const verified = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = verified;
+    const decodedToken = await admin
+      .auth()
+      .verifyIdToken(token.replace("Bearer ", ""));
+    req.user = decodedToken;
     next();
-  } catch (err) {
+  } catch (error) {
     res.status(400).json({ message: "Invalid token" });
   }
 };

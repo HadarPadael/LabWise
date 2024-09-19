@@ -1,72 +1,70 @@
+const connectDB = require("../config/firebaseConfig");
 const {
   updateDescriptionInDropbox,
   uploadFileToDropbox,
   buildProjectStructure,
 } = require("../services/dropboxService");
 
-const Project = require("../models/Project");
+const db = connectDB();
 
 exports.loadToDB = async (req, res) => {
   try {
-    // Check if there are any projects in the database
-    const existingProjects = await Project.find({});
+    // Fetch existing projects
+    const existingProjects = await db.collection("projects").get();
 
-    if (existingProjects.length > 0) {
-      console.log("Projects already exist in the database.");
+    // Only load data from Dropbox if there are no projects in Firestore
+    if (!existingProjects.empty) {
       return res.status(200).send("Projects already exist in the database.");
     }
 
-    // If no projects exist, proceed to load the data
+    // Fetch projects from Dropbox
     const projects = await buildProjectStructure("/LabWise");
 
+    // Add each project to Firestore
     for (const project of projects) {
-      const existingProject = await Project.findOne({
+      await db.collection("projects").add({
         project_name: project.project_name,
-      });
-      if (!existingProject) {
-        await Project.create({
-          project_name: project.project_name,
-          description: project.description,
-          path: project.path, // Add the path field
-          research_questions: project.research_questions.map((rq) => ({
-            question: rq.question,
-            description: rq.description,
-            path: rq.path, // Add the path field
-            experiments: rq.experiments.map((exp) => ({
-              experiment_id: exp.experiment_id,
-              description: exp.description,
-              path: exp.path, // Add the path field
-              samples: exp.samples.map((sample) => ({
-                sample_id: sample.sample_id,
-                description: sample.description,
-                path: sample.path, // Add the path field
-                results: sample.results.map((result) => ({
-                  file_name: result.file_name,
-                  file_path: result.file_path,
-                })),
+        description: project.description,
+        path: project.path,
+        research_questions: project.research_questions.map((rq) => ({
+          question: rq.question,
+          description: rq.description,
+          path: rq.path,
+          experiments: rq.experiments.map((exp) => ({
+            experiment_id: exp.experiment_id,
+            description: exp.description,
+            path: exp.path,
+            samples: exp.samples.map((sample) => ({
+              sample_id: sample.sample_id,
+              description: sample.description,
+              path: sample.path,
+              results: sample.results.map((result) => ({
+                file_name: result.file_name,
+                file_path: result.file_path,
               })),
             })),
           })),
-        });
-      } else {
-        console.log(
-          `Project "${project.project_name}" already exists, skipping.`
-        );
-      }
+        })),
+      });
     }
-    res.status(200).send("Data successfully loaded to the database.");
+
+    res.status(200).send("Data successfully loaded to Firebase.");
   } catch (error) {
-    console.error("Error loading data to the database:", error);
-    res.status(500).send("Error loading data to the database.");
+    console.error("Error loading data to Firebase:", error);
+    res.status(500).send("Error loading data to Firebase.");
   }
 };
 
 exports.getProjects = async (req, res) => {
   try {
-    const projects = await Project.find();
+    const projectsSnapshot = await db.collection("projects").get();
+    const projects = [];
+    projectsSnapshot.forEach((doc) => {
+      projects.push({ id: doc.id, ...doc.data() });
+    });
     res.status(200).json({ projects });
   } catch (error) {
-    console.error("Error fetching projects:", error);
+    console.error("Error fetching projects from Firebase:", error);
     res.status(500).json({ error: "Failed to fetch projects" });
   }
 };
@@ -85,14 +83,13 @@ exports.addFile = async (req, res) => {
 
 // Controller to handle updating the description
 exports.updateDescription = async (req, res) => {
-  const { path, description } = req.body; // Get path and description from request body
+  const { path, description } = req.body;
 
   try {
-    // Call the service to update the description
     await updateDescriptionInDropbox(path, description);
     res.status(200).json({ message: "Description updated successfully." });
   } catch (error) {
-    console.error("Error updating description:", error.message || error);
+    console.error("Error updating description:", error);
     res.status(500).json({ message: "Error updating description." });
   }
 };

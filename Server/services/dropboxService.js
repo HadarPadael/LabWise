@@ -38,9 +38,9 @@ const updateDescriptionInDropbox = async (path, description) => {
   try {
     // Upload new content to description.txt in Dropbox
     const response = await dbx.filesUpload({
-      path: `${path}/description.txt`,  // Ensure the correct file path is provided
-      mode: { ".tag": "overwrite" },    // Overwrite the current description.txt file
-      contents: description,            // Pass the updated description content
+      path: `${path}/description.txt`, // Ensure the correct file path is provided
+      mode: { ".tag": "overwrite" }, // Overwrite the current description.txt file
+      contents: description, // Pass the updated description content
     });
     return response;
   } catch (error) {
