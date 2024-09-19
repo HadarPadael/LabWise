@@ -3,8 +3,24 @@ import ItemsView from "./ItemsView";
 
 function ProjectView({ onItemClick }) {
   const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true); // Add loading state
-  const [error, setError] = useState(null); // Error handling
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchProjects = async () => {
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/dropbox/projects?limit=10&page=1"
+      );
+      const data = await response.json();
+      console.log("Projects fetched from Firestore:", data.projects);
+      setProjects([...data.projects]); // Load projects from Firestore
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching projects from Firestore:", error);
+      setError(error.message);
+      setLoading(false); // Stop loading if there's an error
+    }
+  };
 
   const loadToDB = async () => {
     try {
@@ -17,35 +33,43 @@ function ProjectView({ onItemClick }) {
       if (!response.ok) {
         throw new Error("Failed to load data to the database.");
       }
+      console.log("Projects loaded from Dropbox to Firestore");
+      await fetchProjects(); // Fetch projects from Firestore after loading from Dropbox
     } catch (error) {
+      console.error("Error loading data to Firebase:", error);
       setError(error.message);
+      setLoading(false);
     }
   };
 
-  const fetchProjects = async () => {
+  const initializeProjects = async () => {
     try {
+      // Fetch projects from Firestore first
       const response = await fetch(
         "http://localhost:5000/api/dropbox/projects?limit=10&page=1"
       );
       const data = await response.json();
-      console.log("Data fetched:", data); // Logging to verify fetched data
-      setProjects([...data.projects]); // Update the state with the fetched projects
-      setLoading(false); // Set loading to false once data is fetched
+
+      if (data.projects.length === 0) {
+        // No projects in Firestore, so load them from Dropbox
+        console.log("No projects in Firestore. Loading from Dropbox...");
+        await loadToDB();
+      } else {
+        // Projects exist in Firestore, use them
+        console.log("Projects found in Firestore:", data.projects);
+        setProjects([...data.projects]);
+        setLoading(false);
+      }
     } catch (error) {
-      console.error("Error fetching projects:", error);
+      console.error("Error initializing projects:", error);
       setError(error.message);
-      setLoading(false); // Ensure loading is false in case of error
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    const loadAndFetchProjects = async () => {
-      await loadToDB(); // Load to DB
-      await fetchProjects(); // Fetch projects
-    };
-
-    loadAndFetchProjects();
-  }, []); // Empty dependency array to run only on mount
+    initializeProjects();
+  }, []); // Only run this effect on mount
 
   if (loading) {
     return (
@@ -68,17 +92,16 @@ function ProjectView({ onItemClick }) {
 
   return (
     <div>
-      {/* Only render ItemsView if projects exist */}
       {projects.length > 0 ? (
         <ItemsView
           title="Projects"
           items={projects}
           searchKeys={["project_name", "research_questions"]}
           titleKey="project_name"
-          onItemClick={onItemClick} // Pass the onItemClick callback
+          onItemClick={onItemClick}
         />
       ) : (
-        <p>No projects available.</p> // Message for empty projects array
+        <p>No projects available.</p>
       )}
     </div>
   );

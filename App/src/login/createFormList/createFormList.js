@@ -1,12 +1,12 @@
 import React from "react";
 import FormItem from "../formItem/FormItem";
 
-function CreateFormsList({ setUsername, setPassword }) {
+function CreateFormsList({ setEmail, setPassword }) {
   const forms = [
     {
-      fieldName: "username",
-      requestFmt: "username",
-      onChange: (e) => setUsername(e.target.value),
+      fieldName: "email",
+      requestFmt: "email",
+      onChange: (e) => setEmail(e.target.value),
     },
     {
       fieldName: "password",

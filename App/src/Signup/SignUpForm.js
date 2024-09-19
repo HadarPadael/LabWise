@@ -1,24 +1,17 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import InputComponent from "./inputComponent/InputComponent";
-import SelectComponent from "./selectComponent/SelectComponent";
 
 function SignUpForm() {
   const [passwordError, setPasswordError] = useState("");
-  const [image, setImage] = useState(null);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
     email: "",
     password: "",
     reEnterPassword: "",
     nickName: "",
-    gender: "",
-    month: "",
-    day: "",
-    year: "",
   });
 
   const handleChange = (e) => {
@@ -57,11 +50,6 @@ function SignUpForm() {
     }
   };
 
-  const handleImageChange = (event) => {
-    const file = event.target.files[0];
-    setImage(file);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -72,8 +60,6 @@ function SignUpForm() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
           username: formData.nickName,
           email: formData.email,
           password: formData.password,
@@ -82,15 +68,16 @@ function SignUpForm() {
 
       const data = await response.json();
 
-      if (response.ok) {
+      if (response.ok && !passwordError) {
         // Redirect to login page or homepage after successful registration
-        navigate("/login");
+        navigate("/");
       } else {
-        // Handle error (e.g., show error message to user)
-        console.error("Error:", data.message);
+        setError(`Failed to register`);
+        console.log(data.error);
       }
     } catch (error) {
       console.error("Error:", error);
+      setError(`Failed to register: ${error}`);
     }
   };
 
@@ -106,21 +93,8 @@ function SignUpForm() {
           marginBottom: "60px",
         }}
       >
+        {error && <div className="error">{error}</div>}
         <form className="row g-3" onSubmit={handleSubmit}>
-          <InputComponent
-            label="First Name"
-            type="text"
-            id="firstName"
-            value={formData.firstName}
-            onChange={handleChange}
-          />
-          <InputComponent
-            label="Last Name"
-            type="text"
-            id="lastName"
-            value={formData.lastName}
-            onChange={handleChange}
-          />
           <InputComponent
             label="Enter Email"
             type="email"
@@ -151,38 +125,6 @@ function SignUpForm() {
             onChange={handlePasswordValidation}
             passwordError={passwordError}
           />
-          <div className="col-md-6">
-            <SelectComponent
-              label="Gender"
-              id="gender"
-              options={[
-                { value: "male", label: "Male" },
-                { value: "female", label: "Female" },
-              ]}
-              value={formData.value}
-              onChange={handleChange}
-            />
-          </div>
-          <InputComponent
-            label="Add Profile Picture"
-            type="file"
-            id="profilePicture"
-            // value=""
-            onChange={handleImageChange}
-            accept="image/*"
-          />
-          <div className="col-12">
-            {image && (
-              <div>
-                <p>Preview:</p>
-                <img
-                  src={URL.createObjectURL(image)}
-                  alt="Preview"
-                  style={{ maxWidth: "100%", height: "auto" }}
-                />
-              </div>
-            )}
-          </div>
           <div className="col-12">
             <div className="d-grid gap-2 col-3 mx-auto">
               <button
