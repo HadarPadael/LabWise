@@ -1,0 +1,9 @@
+
+            Experiment ID: 1.11
+            Free Description: This is experiment number 1 of Research Question A1.
+            Official Name: Exp1
+            Creator Name: Creator A
+            Creation Date: 2023-01-03
+            Model Animal: Mouse
+            Animal Species: Mus musculus
+            

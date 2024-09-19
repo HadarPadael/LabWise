@@ -1,0 +1,7 @@
+
+    Project Name: Project B
+    Free Description: This is project B.
+    Official Name: P2
+    Creator Name: Creator C
+    Creation Date: 2023-01-01
+    
