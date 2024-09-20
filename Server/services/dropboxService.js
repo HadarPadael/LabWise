@@ -120,14 +120,14 @@ const buildProjectStructure = async (rootFolder) => {
                         file.name !== "description.txt"
                       ) {
                         resultFilesArr.push({
-                          file_name: file.name,
+                          name: file.name.toLocaleLowerCase(),
                           file_path: file.path_lower,
                         });
                       }
                     }
 
                     samplesArr.push({
-                      sample_id: sample.name,
+                      name: sample.name.toLocaleLowerCase(),
                       description: sampleDescription,
                       path: samplePath, // Add path
                       results: resultFilesArr,
@@ -136,7 +136,7 @@ const buildProjectStructure = async (rootFolder) => {
                 }
 
                 experimentsArr.push({
-                  experiment_id: experiment.name,
+                  name: experiment.name.toLocaleLowerCase(),
                   description: experimentDescription,
                   path: experimentPath, // Add path
                   samples: samplesArr,
@@ -145,7 +145,7 @@ const buildProjectStructure = async (rootFolder) => {
             }
 
             researchQuestionsArr.push({
-              question: question.name,
+              name: question.name.toLocaleLowerCase(),
               description: questionDescription,
               path: questionPath, // Add path
               experiments: experimentsArr,
@@ -154,7 +154,7 @@ const buildProjectStructure = async (rootFolder) => {
         }
 
         projectStructure.push({
-          project_name: project.name,
+          name: project.name.toLowerCase(),
           description: projectDescription,
           path: projectPath, // Add path
           research_questions: researchQuestionsArr,

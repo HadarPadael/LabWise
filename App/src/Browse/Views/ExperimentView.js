@@ -6,8 +6,8 @@ function ExperimentView({ experiments, onItemClick }) {
     <ItemsView
       title="Experiments"
       items={experiments}
-      searchKeys={["experiment_id", "samples"]}
-      titleKey="experiment_id"
+      searchKeys={["name", "samples"]}
+      titleKey="name"
       onItemClick={onItemClick} // Pass the onItemClick callback
     />
   );

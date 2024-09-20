@@ -10,8 +10,8 @@ function ResultsView({ results }) {
     <ItemsView
       title="Results"
       items={results}
-      searchKeys={["file_name"]}
-      titleKey="file_name"
+      searchKeys={["name"]}
+      titleKey="name"
       onItemClick={handleItemClick}
     />
   );

@@ -6,8 +6,8 @@ function SampleView({ samples, onItemClick }) {
     <ItemsView
       title="Samples"
       items={samples}
-      searchKeys={["sample_id", "results"]}
-      titleKey="sample_id"
+      searchKeys={["name", "results"]}
+      titleKey="name"
       onItemClick={onItemClick} // Pass the onItemClick callback
     />
   );

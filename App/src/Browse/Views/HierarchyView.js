@@ -64,28 +64,28 @@ function HierarchyView() {
     setSelectedSample(sample);
   };
 
-  const handleViewDescription = (item) => {
-    const description = `
-      Name: ${
-        item.project_name ||
-        item.question ||
-        item.experiment_id ||
-        item.sample_id ||
-        item.file_name
-      }
-      Description: ${
-        item.free_description || item.description || "No description available"
-      }
-      Official Name: ${item.official_name || "N/A"}
-      Creator Name: ${item.creator_name || "N/A"}
-      Creation Date: ${item.creation_date || "N/A"}
-    `;
-    alert(description);
-  };
+  // const handleViewDescription = (item) => {
+  //   const description = `
+  //     Name: ${
+  //       item.project_name ||
+  //       item.question ||
+  //       item.experiment_id ||
+  //       item.sample_id ||
+  //       item.file_name
+  //     }
+  //     Description: ${
+  //       item.free_description || item.description || "No description available"
+  //     }
+  //     Official Name: ${item.official_name || "N/A"}
+  //     Creator Name: ${item.creator_name || "N/A"}
+  //     Creation Date: ${item.creation_date || "N/A"}
+  //   `;
+  //   alert(description);
+  // };
 
-  const handleEdit = (level, item) => {
-    navigate("/edit-form", { state: { level, data: item } });
-  };
+  // const handleEdit = (level, item) => {
+  //   navigate("/edit-form", { state: { level, data: item } });
+  // };
 
   return (
     <div style={{ padding: "5px" }}>

@@ -96,8 +96,8 @@ function ProjectView({ onItemClick }) {
         <ItemsView
           title="Projects"
           items={projects}
-          searchKeys={["project_name", "research_questions"]}
-          titleKey="project_name"
+          searchKeys={["name", "research_questions"]}
+          titleKey="name"
           onItemClick={onItemClick}
         />
       ) : (

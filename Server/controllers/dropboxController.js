@@ -17,29 +17,29 @@ exports.loadToDB = async (req, res) => {
 
     // Add each project to Firestore if it doesn't already exist
     for (const project of projects) {
-      const projectRef = db.collection("projects").doc(project.project_name);
+      const projectRef = db.collection("projects").doc(project.name);
       const doc = await projectRef.get();
 
       if (!doc.exists) {
         // Add the full structure (including research questions, experiments, etc.)
         await projectRef.set({
-          project_name: project.project_name,
+          name: project.name,
           description: project.description,
           path: project.path,
           research_questions: project.research_questions.map((rq) => ({
-            question: rq.question,
+            name: rq.name,
             description: rq.description,
             path: rq.path,
             experiments: rq.experiments.map((exp) => ({
-              experiment_id: exp.experiment_id,
+              name: exp.name,
               description: exp.description,
               path: exp.path,
               samples: exp.samples.map((sample) => ({
-                sample_id: sample.sample_id,
+                name: sample.name,
                 description: sample.description,
                 path: sample.path,
                 results: sample.results.map((result) => ({
-                  file_name: result.file_name,
+                  name: result.name,
                   file_path: result.file_path,
                 })),
               })),
@@ -97,112 +97,78 @@ exports.updateDescription = async (req, res) => {
     // Step 1: Update the description in Dropbox
     await updateDescriptionInDropbox(path, description);
 
-    // Step 2: Parse the path to determine what needs to be updated
-    const pathSegments = path.split("/").filter(Boolean); // Remove empty elements
-    console.log(pathSegments[0]);
-    console.log(pathSegments[1]);
+    // Step 2: Parse the path segments
+    const pathSegments = path.split("/").filter(Boolean);
 
-    // The first segment is the root folder (e.g., "LabWise")
-    // The second segment is the project name
-    const projectName = pathSegments[1];
+    // Map the path segments to Firestore document references
+    const projectName = pathSegments[1]; // Project name
+    const researchQuestionName = pathSegments[2]; // Research question name (optional)
+    const experimentName = pathSegments[3]; // Experiment name (optional)
+    const sampleName = pathSegments[4]; // Sample name (optional)
 
-    // If there are more segments, it means we're updating a sub-collection
-    const researchQuestionName = pathSegments[2]; // Optional
-    const experimentName = pathSegments[3]; // Optional
-    const sampleName = pathSegments[4]; // Optional
-    const resultFileName = pathSegments[5]; // Optional
-
-    // Step 3: Query Firestore based on the path structure
-    const projectSnapshot = await db
+    // Step 3: Reference the project document
+    const projectRef = db
       .collection("projects")
-      .where("project_name", "==", projectName)
-      .get();
+      .where("name", "==", projectName);
+    const projectSnapshot = await projectRef.get();
 
     if (projectSnapshot.empty) {
       return res.status(404).send("Project not found.");
     }
 
     const projectDoc = projectSnapshot.docs[0];
-    const projectId = projectDoc.id; // Get the project's document ID
 
-    // Step 4: Depending on how many segments there are, navigate to the correct sub-collection
+    // Step 4: Handle the nested field updates
     if (!researchQuestionName) {
-      // Update the project description
+      // Update the project description (at the project level)
       await projectDoc.ref.update({
         description: description,
       });
     } else if (!experimentName) {
-      // Update the research question description
-      const researchQuestionSnapshot = await projectDoc.ref
-        .collection("research_questions")
-        .where("name", "==", researchQuestionName)
-        .get();
-
-      if (researchQuestionSnapshot.empty) {
-        return res.status(404).send("Research question not found.");
-      }
-
-      const researchQuestionDoc = researchQuestionSnapshot.docs[0];
-      await researchQuestionDoc.ref.update({
-        description: description,
+      // Update the research question description (nested field)
+      let researchQuestions = projectDoc.data().research_questions || [];
+      researchQuestions = researchQuestions.map((rq) => {
+        if (rq.name === researchQuestionName) {
+          rq.description = description;
+        }
+        return rq;
       });
+      await projectDoc.ref.update({ research_questions: researchQuestions });
     } else if (!sampleName) {
-      // Update the experiment description
-      const experimentSnapshot = await projectDoc.ref
-        .collection("research_questions")
-        .doc(researchQuestionName) // Assuming you store research question ID in the document
-        .collection("experiments")
-        .where("name", "==", experimentName)
-        .get();
-
-      if (experimentSnapshot.empty) {
-        return res.status(404).send("Experiment not found.");
-      }
-
-      const experimentDoc = experimentSnapshot.docs[0];
-      await experimentDoc.ref.update({
-        description: description,
+      // Update the experiment description (nested field)
+      let researchQuestions = projectDoc.data().research_questions || [];
+      researchQuestions = researchQuestions.map((rq) => {
+        if (rq.name === researchQuestionName) {
+          rq.experiments = rq.experiments.map((exp) => {
+            if (exp.name === experimentName) {
+              exp.description = description;
+            }
+            return exp;
+          });
+        }
+        return rq;
       });
-    } else if (!resultFileName) {
-      // Update the sample description
-      const sampleSnapshot = await projectDoc.ref
-        .collection("research_questions")
-        .doc(researchQuestionName) // Assuming you store research question ID in the document
-        .collection("experiments")
-        .doc(experimentName) // Assuming you store experiment ID in the document
-        .collection("samples")
-        .where("name", "==", sampleName)
-        .get();
-
-      if (sampleSnapshot.empty) {
-        return res.status(404).send("Sample not found.");
-      }
-
-      const sampleDoc = sampleSnapshot.docs[0];
-      await sampleDoc.ref.update({
-        description: description,
-      });
+      await projectDoc.ref.update({ research_questions: researchQuestions });
     } else {
-      // Update the result description (for a specific file in the sample's results folder)
-      const resultSnapshot = await projectDoc.ref
-        .collection("research_questions")
-        .doc(researchQuestionName)
-        .collection("experiments")
-        .doc(experimentName)
-        .collection("samples")
-        .doc(sampleName)
-        .collection("results")
-        .where("file_name", "==", resultFileName)
-        .get();
-
-      if (resultSnapshot.empty) {
-        return res.status(404).send("Result file not found.");
-      }
-
-      const resultDoc = resultSnapshot.docs[0];
-      await resultDoc.ref.update({
-        description: description,
+      // Update the sample description (nested field)
+      let researchQuestions = projectDoc.data().research_questions || [];
+      researchQuestions = researchQuestions.map((rq) => {
+        if (rq.name === researchQuestionName) {
+          rq.experiments = rq.experiments.map((exp) => {
+            if (exp.name === experimentName) {
+              exp.samples = exp.samples.map((sample) => {
+                if (sample.name === sampleName) {
+                  sample.description = description;
+                }
+                return sample;
+              });
+            }
+            return exp;
+          });
+        }
+        return rq;
       });
+      await projectDoc.ref.update({ research_questions: researchQuestions });
     }
 
     res.status(200).send("Description updated successfully in Firestore.");

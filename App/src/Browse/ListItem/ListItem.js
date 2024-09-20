@@ -41,22 +41,22 @@ function ListItem({ name, items, onClick, level, onRemove }) {
     let folder;
 
     if (level === "Projects") {
-      folder = zip.folder(item.project_name);
+      folder = zip.folder(item.name);
       for (const question of item.research_questions) {
         await addItemsToZip(folder, question, "Research Questions");
       }
     } else if (level === "Research Questions") {
-      folder = zip.folder(item.question);
+      folder = zip.folder(item.name);
       for (const experiment of item.experiments) {
         await addItemsToZip(folder, experiment, "Experiments");
       }
     } else if (level === "Experiments") {
-      folder = zip.folder(item.experiment_id);
+      folder = zip.folder(item.name);
       for (const sample of item.samples) {
         await addItemsToZip(folder, sample, "Samples");
       }
     } else if (level === "Samples") {
-      folder = zip.folder(item.sample_id);
+      folder = zip.folder(item.name);
       for (const result of item.results) {
         try {
           const response = await fetch(result.file_path);
@@ -80,9 +80,8 @@ function ListItem({ name, items, onClick, level, onRemove }) {
   };
 
   const handleEdit = () => {
-    console.log(level.toLowerCase());
     navigate("/edit-form", {
-      state: { level: level.toLowerCase(), data: {...items} },
+      state: { level: level.toLowerCase(), data: { ...items } },
     });
   };
 
@@ -113,9 +112,17 @@ function ListItem({ name, items, onClick, level, onRemove }) {
           >
             <FaEye /> View Description
           </button>
-          <button className="btn btn-sm btn-warning me-2" onClick={handleEdit}>
-            <FaEdit /> Edit
-          </button>
+
+          {/* Conditionally render the Edit button */}
+          {level !== "Results" && (
+            <button
+              className="btn btn-sm btn-warning me-2"
+              onClick={handleEdit}
+            >
+              <FaEdit /> Edit
+            </button>
+          )}
+
           <button className="btn btn-sm btn-danger me-2" onClick={handleRemove}>
             <FaTrash /> Remove
           </button>
