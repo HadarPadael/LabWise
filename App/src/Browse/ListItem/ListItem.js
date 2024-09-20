@@ -80,6 +80,7 @@ function ListItem({ name, items, onClick, level, onRemove }) {
   };
 
   const handleEdit = () => {
+    console.log(level.toLowerCase());
     navigate("/edit-form", {
       state: { level: level.toLowerCase(), data: {...items} },
     });

@@ -21,7 +21,8 @@ function EditForm() {
           },
           body: JSON.stringify({
             path: data.path, // Path to the file in Dropbox
-            description,
+            description: description,
+            type: level
           }),
         }
       );

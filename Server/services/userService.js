@@ -35,7 +35,7 @@ exports.registerUser = async ({ username, email, password }) => {
 exports.verifyFirebaseToken = async (token) => {
   console.log("Starting token verification...");
   console.log(`Token received for verification: ${token}`);
-  
+
   try {
     // Verify Firebase ID token using the Admin SDK
     const decodedToken = await admin.auth().verifyIdToken(token);
@@ -45,21 +45,12 @@ exports.verifyFirebaseToken = async (token) => {
     const userRecord = await admin.auth().getUser(decodedToken.uid);
     console.log("User record retrieved successfully:", userRecord);
 
-    // Optionally, generate a JWT token for your own API (this is optional)
-    const apiToken = jwt.sign(
-      { id: decodedToken.uid, email: decodedToken.email },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "1h",
-      }
-    );
-
-    console.log("Custom JWT generated successfully:", apiToken);
-    return { message: "Login successful", token: apiToken };
+    // Return a success message without creating a custom JWT
+    return { message: "Login successful", decodedToken };
   } catch (error) {
     console.error("Error verifying Firebase token:", {
       message: error.message,
-      stack: error.stack || "No stack trace"
+      stack: error.stack || "No stack trace",
     });
     throw new Error("Login failed: " + error.message);
   }
