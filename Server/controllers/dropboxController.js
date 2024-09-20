@@ -3,7 +3,7 @@ const {
   updateDescriptionInDropbox,
   uploadFileToDropbox,
   buildProjectStructure,
-  listDropboxFolder,
+  getShareableLinkService,
 } = require("../services/dropboxService");
 
 const db = connectDB();
@@ -177,3 +177,18 @@ exports.updateDescription = async (req, res) => {
     res.status(500).send("Error updating description.");
   }
 };
+
+// Controller to get a shareable link for a Dropbox file
+exports.getShareableLink = async (req, res) => {
+  console.log("Request received:", req.body); // Add this line to log the request
+  const { filePath } = req.body;
+
+  try {
+    const shareableUrl = await getShareableLinkService(filePath);
+    res.status(200).json({ url: shareableUrl });
+  } catch (error) {
+    console.error("Error generating shareable link:", error);
+    res.status(500).send("Error generating shareable link.");
+  }
+};
+

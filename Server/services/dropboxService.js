@@ -174,10 +174,40 @@ const buildProjectStructure = async (rootFolder) => {
   }
 };
 
+// Function to create a shareable link
+async function getShareableLinkService(filePath) {
+  try {
+    // Step 1: Check if a shared link already exists for the file
+    const listResponse = await dbx.sharingListSharedLinks({
+      path: filePath,
+      direct_only: true, // Only return direct shared links for the exact file
+    });
+
+    // Step 2: If an existing link is found, return it
+    if (listResponse.result.links.length > 0) {
+      const existingLink = listResponse.result.links[0].url;
+      console.log("Existing shareable link found:", existingLink);
+      return existingLink;
+    }
+
+    // Step 3: If no existing link, create a new shared link
+    const response = await dbx.sharingCreateSharedLinkWithSettings({
+      path: filePath,
+    });
+
+    // Step 4: Return the newly created shared link
+    return response.result.url;
+  } catch (error) {
+    console.error("Error generating shareable link:", error);
+    throw error;
+  }
+}
+
 // Export the function
 module.exports = {
   buildProjectStructure,
   listDropboxFolder,
   uploadFileToDropbox,
   updateDescriptionInDropbox,
+  getShareableLinkService,
 };
