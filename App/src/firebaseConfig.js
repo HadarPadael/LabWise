@@ -1,13 +1,13 @@
 import { initializeApp } from "firebase/app";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCwQQRvuR60mB0VUUyKHuS4Z2L7IMz-lz0",
-  authDomain: "labwise-349cc.firebaseapp.com",
-  projectId: "labwise-349cc",
-  storageBucket: "labwise-349cc.appspot.com",
-  messagingSenderId: "811347020612",
-  appId: "1:811347020612:web:36801c5209527e69cce511",
-  measurementId: "G-F5BH15WBWT",
+  apiKey: "API_KEY",
+  authDomain: "AUTH_DOMAIN",
+  projectId: "PROJECD_ID",
+  storageBucket: "STORAGE_BUCKET",
+  messagingSenderId: "MESSAGING_SENDER_ID",
+  appId: "APP_ID",
+  measurementId: "MEASUREMENT_ID",
 };
 
 // Initialize Firebase Client SDK
