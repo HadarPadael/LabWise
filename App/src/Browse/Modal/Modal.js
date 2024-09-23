@@ -13,7 +13,7 @@ const Modal = ({ onClose, content }) => {
         <div className="modal-header">
           <h2>Description</h2>
           <button className="close-btn" onClick={onClose}>
-            &times; {/* Close Icon */}
+            &times; 
           </button>
         </div>
         <div className="modal-body">{descriptionLines}</div>

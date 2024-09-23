@@ -41,16 +41,16 @@ exports.verifyFirebaseToken = async (token) => {
 
 // Generate a custom JWT for server-side use
 exports.createCustomJWT = (uid) => {
-  // Use a secret key from your environment variables or config
-  const secretKey = process.env.JWT_SECRET || "your-secret-key";
+  // Use a secret key from environment variables 
+  const secretKey = process.env.JWT_SECRET;
 
-  // Define the token payload (claims can include more than just uid)
+  // token payload 
   const payload = {
     uid,
-    role: "user", // Add more custom claims if needed (e.g., role, permissions)
+    role: "user", 
   };
 
-  // Define the options for the token
+  // options for the token
   const options = {
     expiresIn: "1h", // Token expiration time
   };
@@ -59,7 +59,7 @@ exports.createCustomJWT = (uid) => {
   return jwt.sign(payload, secretKey, options);
 };
 
-// Revoke tokens for a user (on logout or token compromise)
+// Revoke tokens for a user
 exports.revokeTokens = async (uid) => {
   try {
     await admin.auth().revokeRefreshTokens(uid);

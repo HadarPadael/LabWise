@@ -1,26 +1,47 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import projects from "../Data/projects.json";
 import "../App.css";
 
 function SearchOptions() {
+  const [projectList, setProjectList] = useState([]);
+  const [errorMessage, setErrorMessage] = useState(null); // To handle any potential error
   const navigate = useNavigate();
 
+  // Fetch project data from the server
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const response = await fetch(
+          "http://localhost:5000/api/dropbox/projects?limit=10&page=1"
+        );
+        const data = await response.json();
+        console.log(data);
+        setProjectList([...data.projects]);
+      } catch (error) {
+        console.error("Error fetching project data:", error);
+        setErrorMessage("Failed to fetch project data.");
+      }
+    };
+    fetchProjects();
+  }, []);
+
   const handleProjectClick = () => {
-    navigate("/hierarchy-view", {
-      state: { items: projects, level: "projects" },
-    });
+    navigate("/hierarchy-view");
   };
 
   const handlePDataClick = () => {
-    const allResults = projects.flatMap((project) =>
-      project.research_questions.flatMap((question) =>
-        question.experiments.flatMap((experiment) =>
-          experiment.samples.flatMap((sample) => sample.results)
+    console.log(projectList);
+
+    // Flatten the project structure to extract all results
+    const allResults = projectList.flatMap((project) =>
+      (project.research_questions || []).flatMap((question) =>
+        (question.experiments || []).flatMap((experiment) =>
+          (experiment.samples || []).flatMap((sample) => sample.results || [])
         )
       )
     );
 
+    // Navigate to the processed data view, passing the flattened results
     navigate("/processed-data-view", {
       state: { items: allResults, level: "results" },
     });
@@ -81,6 +102,10 @@ function SearchOptions() {
                 </div>
               </div>
             </div>
+
+            {errorMessage && (
+              <div className="mt-3 text-center text-danger">{errorMessage}</div>
+            )}
           </div>
         </div>
       </div>

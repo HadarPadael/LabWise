@@ -20,4 +20,4 @@ const connectDB = () => {
 };
 
 const db = connectDB();
-module.exports = db; // Export the Firestore database instance
+module.exports = db;

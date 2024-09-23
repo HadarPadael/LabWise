@@ -25,14 +25,14 @@ const updateDescriptionInDropbox = async (path, description) => {
   try {
     // Upload new content to description.txt in Dropbox
     const response = await dbx.filesUpload({
-      path: `${path}/description.txt`, // Ensure the correct file path is provided
+      path: `${path}/description.txt`, 
       mode: { ".tag": "overwrite" }, // Overwrite the current description.txt file
-      contents: description, // Pass the updated description content
+      contents: description, // updated description content
     });
     return response;
   } catch (error) {
     console.error("Error in Dropbox API:", error.message || error);
-    throw error; // Throw error to be caught by the controller
+    throw error; 
   }
 };
 
@@ -74,7 +74,7 @@ const buildProjectStructure = async (rootFolder) => {
             const questionDescription = await getDescription(
               question.path_lower
             );
-            const questionPath = question.path_lower; // Add path
+            const questionPath = question.path_lower; 
 
             const experiments = await listDropboxFolder(question.path_lower);
             let experimentsArr = [];
@@ -84,7 +84,7 @@ const buildProjectStructure = async (rootFolder) => {
                 const experimentDescription = await getDescription(
                   experiment.path_lower
                 );
-                const experimentPath = experiment.path_lower; // Add path
+                const experimentPath = experiment.path_lower; 
 
                 const samples = await listDropboxFolder(experiment.path_lower);
                 let samplesArr = [];
@@ -94,7 +94,7 @@ const buildProjectStructure = async (rootFolder) => {
                     const sampleDescription = await getDescription(
                       sample.path_lower
                     );
-                    const samplePath = sample.path_lower; // Add path
+                    const samplePath = sample.path_lower; 
 
                     const sampleFiles = await listDropboxFolder(
                       sample.path_lower
@@ -116,7 +116,7 @@ const buildProjectStructure = async (rootFolder) => {
                     samplesArr.push({
                       name: sample.name.toLocaleLowerCase(),
                       description: sampleDescription,
-                      path: samplePath, // Add path
+                      path: samplePath, 
                       results: resultFilesArr,
                     });
                   }
@@ -125,7 +125,7 @@ const buildProjectStructure = async (rootFolder) => {
                 experimentsArr.push({
                   name: experiment.name.toLocaleLowerCase(),
                   description: experimentDescription,
-                  path: experimentPath, // Add path
+                  path: experimentPath, 
                   samples: samplesArr,
                 });
               }
@@ -134,7 +134,7 @@ const buildProjectStructure = async (rootFolder) => {
             researchQuestionsArr.push({
               name: question.name.toLocaleLowerCase(),
               description: questionDescription,
-              path: questionPath, // Add path
+              path: questionPath, 
               experiments: experimentsArr,
             });
           }
@@ -143,7 +143,7 @@ const buildProjectStructure = async (rootFolder) => {
         projectStructure.push({
           name: project.name.toLowerCase(),
           description: projectDescription,
-          path: projectPath, // Add path
+          path: projectPath, 
           research_questions: researchQuestionsArr,
         });
       } else {
@@ -154,7 +154,7 @@ const buildProjectStructure = async (rootFolder) => {
     }
 
     console.log(projectStructure);
-    return projectStructure; // This structure matches the JSON format
+    return projectStructure; 
   } catch (error) {
     console.error("Error building project structure:", error);
     throw error;
@@ -220,11 +220,17 @@ const getProjectData = async (projectName) => {
 };
 
 // Helper to prepare metadata based on the level
-const prepareMetadata = (level, name, description, parentPath, fileName = null) => {
+const prepareMetadata = (
+  level,
+  name,
+  description,
+  parentPath,
+  fileName = null
+) => {
   const metadata = {
     description,
     path: `${parentPath}/${fileName || name}`, // Use fileName for results, otherwise use name
-    ...(fileName && { file: fileName }) // Add the file if it exists
+    ...(fileName && { file: fileName }), // Add the file if it exists
   };
 
   // Special handling for results: fileName becomes the name
@@ -241,7 +247,8 @@ const prepareMetadata = (level, name, description, parentPath, fileName = null) 
 // Helper to get the project data
 const getProject = async (projectName) => {
   const { projectRef, projectData } = await getProjectData(projectName);
-  if (!projectRef || !projectData) throw new Error(`Project ${projectName} does not exist.`);
+  if (!projectRef || !projectData)
+    throw new Error(`Project ${projectName} does not exist.`);
   return { projectRef, projectData };
 };
 
@@ -262,16 +269,28 @@ const buildUpdateData = (level, metadata, pathSegments, projectData) => {
 };
 
 // Main function to add metadata to Firebase
-const addMetadataToFirebase = async (level, name, description, parentPath, fileName = null) => {
+const addMetadataToFirebase = async (
+  level,
+  name,
+  description,
+  parentPath,
+  fileName = null
+) => {
   try {
-    // Normalize the level
+    // Normalize the level (replace spaces with underscore)
     level = level.toLowerCase().replace(/\s+/g, "_");
 
     // For projects, set the parentPath to /labwise
     if (level === "projects") parentPath = "/labwise";
 
     // Prepare metadata
-    const metadata = prepareMetadata(level, name, description, parentPath, fileName);
+    const metadata = prepareMetadata(
+      level,
+      name,
+      description,
+      parentPath,
+      fileName
+    );
 
     // Handle adding a new project
     if (level === "projects") {
@@ -280,30 +299,42 @@ const addMetadataToFirebase = async (level, name, description, parentPath, fileN
     }
 
     // Get the project data
+    console.log("service:", parentPath);
     const pathSegments = parentPath.split("/");
-    const projectName = pathSegments[2]; // Assuming path starts with /projects/project_name
+    const projectName = pathSegments[2]; 
     const { projectRef, projectData } = await getProject(projectName);
 
     // Build the update data based on the level
-    const updateData = buildUpdateData(level, metadata, pathSegments, projectData);
+    const updateData = buildUpdateData(
+      level,
+      metadata,
+      pathSegments,
+      projectData
+    );
 
     // Update Firestore with the new metadata
     await projectRef.update(updateData);
-    console.log(`Metadata for ${metadata.name} added to Firebase under ${parentPath}`);
-    
+    console.log(
+      `Metadata for ${metadata.name} added to Firebase under ${parentPath}`
+    );
   } catch (error) {
     console.error("Error in addMetadataToFirebase:", error);
     throw new Error(`Error adding ${level} metadata to Firebase`);
   }
 };
 
-// Handle research questions update
+
 const handleResearchQuestionUpdate = (metadata, projectData) => {
   projectData.research_questions = projectData.research_questions || [];
-  const existingQuestion = findByName(projectData.research_questions, metadata.name);
+  const existingQuestion = findByName(
+    projectData.research_questions,
+    metadata.name
+  );
 
   if (existingQuestion) {
-    throw new Error(`Research question with name ${metadata.name} already exists.`);
+    throw new Error(
+      `Research question with name ${metadata.name} already exists.`
+    );
   }
 
   return {
@@ -311,15 +342,20 @@ const handleResearchQuestionUpdate = (metadata, projectData) => {
   };
 };
 
-// Handle experiment update
 const handleExperimentUpdate = (metadata, pathSegments, projectData) => {
-  const researchQuestion = findByName(projectData.research_questions, pathSegments[3]);
+  const researchQuestion = findByName(
+    projectData.research_questions,
+    pathSegments[3]
+  );
   if (!researchQuestion) {
     throw new Error(`Research question ${pathSegments[3]} not found.`);
   }
 
   researchQuestion.experiments = researchQuestion.experiments || [];
-  const existingExperiment = findByName(researchQuestion.experiments, metadata.name);
+  const existingExperiment = findByName(
+    researchQuestion.experiments,
+    metadata.name
+  );
   if (existingExperiment) {
     throw new Error(`Experiment with name ${metadata.name} already exists.`);
   }
@@ -328,9 +364,11 @@ const handleExperimentUpdate = (metadata, pathSegments, projectData) => {
   return { research_questions: projectData.research_questions };
 };
 
-// Handle sample update
 const handleSampleUpdate = (metadata, pathSegments, projectData) => {
-  const researchQuestion = findByName(projectData.research_questions, pathSegments[3]);
+  const researchQuestion = findByName(
+    projectData.research_questions,
+    pathSegments[3]
+  );
   const experiment = findByName(researchQuestion.experiments, pathSegments[4]);
   if (!experiment) {
     throw new Error(`Experiment ${pathSegments[4]} not found.`);
@@ -346,9 +384,11 @@ const handleSampleUpdate = (metadata, pathSegments, projectData) => {
   return { research_questions: projectData.research_questions };
 };
 
-// Handle result update
 const handleResultUpdate = (metadata, pathSegments, projectData) => {
-  const researchQuestion = findByName(projectData.research_questions, pathSegments[3]);
+  const researchQuestion = findByName(
+    projectData.research_questions,
+    pathSegments[3]
+  );
   const experiment = findByName(researchQuestion.experiments, pathSegments[4]);
   const sample = findByName(experiment.samples, pathSegments[5]);
   if (!sample) {
@@ -380,7 +420,7 @@ const removeItemFromFirebase = async (level, path, itemName) => {
     } else {
       // Split path and get project name
       const pathSegments = path.split("/");
-      const projectName = pathSegments[2]; // Assuming /projects/project_name
+      const projectName = pathSegments[2]; 
 
       // Retrieve the project data
       const { projectRef, projectData } = await getProjectData(projectName);
@@ -419,7 +459,6 @@ const buildRemoveData = (level, itemName, pathSegments, projectData) => {
   }
 };
 
-// Handle research question removal
 const handleResearchQuestionRemove = (itemName, projectData) => {
   const researchQuestions = projectData.research_questions || [];
   const questionToRemove = findByName(researchQuestions, itemName);
@@ -427,12 +466,18 @@ const handleResearchQuestionRemove = (itemName, projectData) => {
     throw new Error(`Research question ${itemName} not found.`);
   }
 
-  return { research_questions: researchQuestions.filter(question => question.name !== itemName) };
+  return {
+    research_questions: researchQuestions.filter(
+      (question) => question.name !== itemName
+    ),
+  };
 };
 
-// Handle experiment removal
 const handleExperimentRemove = (itemName, pathSegments, projectData) => {
-  const researchQuestion = findByName(projectData.research_questions, pathSegments[3]);
+  const researchQuestion = findByName(
+    projectData.research_questions,
+    pathSegments[3]
+  );
   if (!researchQuestion) {
     throw new Error(`Research question ${pathSegments[3]} not found.`);
   }
@@ -443,13 +488,17 @@ const handleExperimentRemove = (itemName, pathSegments, projectData) => {
     throw new Error(`Experiment ${itemName} not found.`);
   }
 
-  researchQuestion.experiments = experiments.filter(experiment => experiment.name !== itemName);
+  researchQuestion.experiments = experiments.filter(
+    (experiment) => experiment.name !== itemName
+  );
   return { research_questions: projectData.research_questions };
 };
 
-// Handle sample removal
 const handleSampleRemove = (itemName, pathSegments, projectData) => {
-  const researchQuestion = findByName(projectData.research_questions, pathSegments[3]);
+  const researchQuestion = findByName(
+    projectData.research_questions,
+    pathSegments[3]
+  );
   const experiment = findByName(researchQuestion.experiments, pathSegments[4]);
   if (!experiment) {
     throw new Error(`Experiment ${pathSegments[4]} not found.`);
@@ -461,13 +510,15 @@ const handleSampleRemove = (itemName, pathSegments, projectData) => {
     throw new Error(`Sample ${itemName} not found.`);
   }
 
-  experiment.samples = samples.filter(sample => sample.name !== itemName);
+  experiment.samples = samples.filter((sample) => sample.name !== itemName);
   return { research_questions: projectData.research_questions };
 };
 
-// Handle result removal
 const handleResultRemove = (itemName, pathSegments, projectData) => {
-  const researchQuestion = findByName(projectData.research_questions, pathSegments[3]);
+  const researchQuestion = findByName(
+    projectData.research_questions,
+    pathSegments[3]
+  );
   const experiment = findByName(researchQuestion.experiments, pathSegments[4]);
   const sample = findByName(experiment.samples, pathSegments[5]);
   if (!sample) {
@@ -480,11 +531,10 @@ const handleResultRemove = (itemName, pathSegments, projectData) => {
     throw new Error(`Result ${itemName} not found.`);
   }
 
-  sample.results = results.filter(result => result.name !== itemName);
+  sample.results = results.filter((result) => result.name !== itemName);
   return { research_questions: projectData.research_questions };
 };
 
-// Export the functions
 module.exports = {
   buildProjectStructure,
   listDropboxFolder,

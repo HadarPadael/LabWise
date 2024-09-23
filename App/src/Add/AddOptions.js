@@ -5,12 +5,18 @@ import "../App.css";
 function AddOptions() {
   const navigate = useNavigate();
 
+  // Navigate to the AddForm with level 'projects' and parentPath as '/labwise'
   const handleProjectClick = () => {
-    navigate("/AddProject");
+    navigate("/add-form", {
+      state: {
+        level: "projects",
+        parentPath: "/labwise", // Set the parent path for projects
+      },
+    });
   };
 
   const handlePDataClick = () => {
-    navigate("/AddProcessedData");
+    navigate("/AddProcessedDataForm");
   };
 
   return (

@@ -90,9 +90,9 @@ exports.updateDescription = async (req, res) => {
 
     // Map the path segments to Firestore document references
     const projectName = pathSegments[1]; // Project name
-    const researchQuestionName = pathSegments[2]; // Research question name (optional)
-    const experimentName = pathSegments[3]; // Experiment name (optional)
-    const sampleName = pathSegments[4]; // Sample name (optional)
+    const researchQuestionName = pathSegments[2]; // Research question name
+    const experimentName = pathSegments[3]; // Experiment name 
+    const sampleName = pathSegments[4]; // Sample name
 
     // Step 3: Reference the project document
     const projectRef = db
@@ -168,7 +168,6 @@ exports.updateDescription = async (req, res) => {
 
 // Controller to get a shareable link for a Dropbox file
 exports.getShareableLink = async (req, res) => {
-  console.log("Request received:", req.body); // Add this line to log the request
   const { filePath } = req.body;
 
   try {
@@ -182,47 +181,54 @@ exports.getShareableLink = async (req, res) => {
 
 // Add a new item (file/folder)
 exports.addNew = async (req, res) => {
-    const { level, name, description, parentPath } = req.body;
-    let folderPath = '';
+  const { level, name, description, parentPath } = req.body;
+  let folderPath = "";
 
-    try {
-        // Construct the Dropbox path based on parentPath and name
-        if (level === 'results') {
-            // Results - handle as a file
-            const file = req.file;  // Get the uploaded file
-            const filePath = `${parentPath}/${file.originalname}`;
+  try {
+    // Construct the Dropbox path based on parentPath and name
+    if (level === "results") {
+      // Results - handle as a file
+      const file = req.file; // Get the uploaded file
+      const filePath = `${parentPath}/${file.originalname}`;
 
-            // Upload the file to Dropbox
-            await dbx.filesUpload({
-                path: filePath,
-                contents: file.buffer, // File contents from Multer
-            });
+      // Upload the file to Dropbox
+      await dbx.filesUpload({
+        path: filePath,
+        contents: file.buffer, // File contents from Multer
+      });
 
-            // Add metadata to Firebase
-            await addMetadataToFirebase(level, name, description, parentPath, file.originalname);
+      // Add metadata to Firebase
+      await addMetadataToFirebase(
+        level,
+        name,
+        description,
+        parentPath,
+        file.originalname
+      );
+    } else {
+      // Folder structure for Projects, Research Questions, Experiments, Samples
+      folderPath = `${parentPath}/${name}`;
 
-        } else {
-            // Folder structure for Projects, Research Questions, Experiments, Samples
-            folderPath = `${parentPath}/${name}`;
+      // Create folder in Dropbox
+      await dbx.filesCreateFolderV2({ path: folderPath });
 
-            // Create folder in Dropbox
-            await dbx.filesCreateFolderV2({ path: folderPath });
+      // Add description.txt file in the folder
+      await dbx.filesUpload({
+        path: `${folderPath}/description.txt`,
+        contents: Buffer.from(description), // Write description as a file
+      });
 
-            // Add description.txt file in the folder
-            await dbx.filesUpload({
-                path: `${folderPath}/description.txt`,
-                contents: Buffer.from(description), // Write description as a file
-            });
-
-            // Add metadata to Firebase
-            await addMetadataToFirebase(level, name, description, parentPath);
-        }
-
-        res.status(200).json({ message: `${name} added successfully!` });
-    } catch (error) {
-        console.error("Error adding item:", error);
-        res.status(500).json({ message: "Error adding item", error: error.message });
+      // Add metadata to Firebase
+      await addMetadataToFirebase(level, name, description, parentPath);
     }
+
+    res.status(200).json({ message: `${name} added successfully!` });
+  } catch (error) {
+    console.error("Error adding item:", error);
+    res
+      .status(500)
+      .json({ message: "Error adding item", error: error.message });
+  }
 };
 
 exports.removeItem = async (req, res) => {

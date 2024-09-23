@@ -1,5 +1,3 @@
-// SignUp.js
-
 import React from "react";
 import SignUpBar from "./SignUpBar";
 import SignUpForm from "./SignUpForm";

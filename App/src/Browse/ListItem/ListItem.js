@@ -3,7 +3,7 @@ import { FaEye, FaDownload, FaTrash, FaEdit } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
-import Modal from "./Modal";
+import Modal from "../Modal/Modal";
 
 function ListItem({ name, items, onClick, level, onRemove }) {
   const navigate = useNavigate();
@@ -17,7 +17,7 @@ function ListItem({ name, items, onClick, level, onRemove }) {
   };
 
   const handleDownload = async () => {
-    if (level === "Results" || level === "Processed Data") {
+    if (level === "Results") {
       try {
         const response = await fetch(items.file_path);
         if (response.ok) {
@@ -94,7 +94,7 @@ function ListItem({ name, items, onClick, level, onRemove }) {
 
         if (response.ok) {
           console.log(`${level} removed successfully from Firebase.`);
-          onRemove(items); // Optionally update the UI after deletion
+          onRemove(items); // update the UI after deletion
         } else {
           alert("Failed to remove item from Firebase.");
         }

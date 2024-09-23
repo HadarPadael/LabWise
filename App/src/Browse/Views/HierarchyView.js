@@ -5,7 +5,6 @@ import ExperimentView from "./ExperimentView";
 import SampleView from "./SampleView";
 import ResultsView from "./ResultsView";
 import { FaArrowLeft } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
 
 function HierarchyView() {
   const [selectedProject, setSelectedProject] = useState(null);
@@ -14,10 +13,8 @@ function HierarchyView() {
   const [selectedSample, setSelectedSample] = useState(null);
   const [history, setHistory] = useState([]);
   const [currentPath, setCurrentPath] = useState("/labwise"); // Start at the root
-  const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("Current Path Updated: ", currentPath);
   }, [currentPath]);
 
   const goBack = () => {

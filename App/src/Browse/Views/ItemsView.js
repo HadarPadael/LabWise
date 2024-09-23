@@ -11,7 +11,7 @@ function ItemsView({
   onItemClick,
   title,
   showAddButton = true,
-  parentPath, // Accept parentPath as a prop
+  parentPath,
 }) {
   const [filteredItems, setFilteredItems] = useState(items);
   const navigate = useNavigate();
@@ -39,9 +39,6 @@ function ItemsView({
   };
 
   const handleAddNew = () => {
-    console.log("Adding at level:", title.toLowerCase());
-    console.log("Parent Path:", parentPath);
-
     // Depending on the title (current level), navigate to the correct form
     navigate("/add-form", {
       state: { level: title.toLowerCase(), parentPath }, // Pass the level and parentPath to the form

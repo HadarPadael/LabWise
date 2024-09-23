@@ -1,10 +1,9 @@
-// Navbar.js
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaUser } from "react-icons/fa";
 import "./Navbar.css";
 
-function Navbar({ doSearch, setIsLoggedIn }) {
+function Navbar({ setIsLoggedIn }) {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const navigate = useNavigate();
 

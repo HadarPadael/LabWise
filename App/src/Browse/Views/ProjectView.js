@@ -12,7 +12,6 @@ function ProjectView({ onItemClick, parentPath }) {
         "http://localhost:5000/api/dropbox/projects?limit=10&page=1"
       );
       const data = await response.json();
-      console.log("Projects fetched from Firestore:", data.projects);
       setProjects([...data.projects]); // Load projects from Firestore
       setLoading(false);
     } catch (error) {
@@ -33,7 +32,6 @@ function ProjectView({ onItemClick, parentPath }) {
       if (!response.ok) {
         throw new Error("Failed to load data to the database.");
       }
-      console.log("Projects loaded from Dropbox to Firestore");
       await fetchProjects(); // Fetch projects from Firestore after loading from Dropbox
     } catch (error) {
       console.error("Error loading data to Firebase:", error);
@@ -52,11 +50,9 @@ function ProjectView({ onItemClick, parentPath }) {
 
       if (data.projects.length === 0) {
         // No projects in Firestore, so load them from Dropbox
-        console.log("No projects in Firestore. Loading from Dropbox...");
         await loadToDB();
       } else {
         // Projects exist in Firestore, use them
-        console.log("Projects found in Firestore:", data.projects);
         setProjects([...data.projects]);
         setLoading(false);
       }
@@ -69,7 +65,7 @@ function ProjectView({ onItemClick, parentPath }) {
 
   useEffect(() => {
     initializeProjects();
-  }, []); // Only run this effect on mount
+  }, []); 
 
   if (loading) {
     return (

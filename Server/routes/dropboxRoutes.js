@@ -12,8 +12,8 @@ const {
 const router = express.Router();
 
 // List all projects
-router.post("/loadToDB", loadToDB); // POST to load data to DB
-router.get("/projects", getProjects); // GET projects from the DB
+router.post("/loadToDB", loadToDB);
+router.get("/projects", getProjects);
 
 // Add a new file or folder to Dropbox
 router.post("/addNew", upload.single("file"), addNew);
