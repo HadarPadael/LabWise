@@ -12,10 +12,6 @@
 6. [Server Usage](#server-usage)
 7. [Dropbox Integration](#dropbox-integration)
 8. [Firebase Integration](#firebase-integration)
-9. [Running the Code](#running-the-code)
-10. [Contributing](#contributing)
-11. [License](#license)
-
 ---
 
 ## Introduction
