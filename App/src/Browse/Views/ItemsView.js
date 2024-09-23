@@ -5,14 +5,14 @@ import { FaPlus } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 function ItemsView({
-  items,
+  items = [], // Default to empty array if not provided
   searchKeys,
   titleKey,
   onItemClick,
   title,
   showAddButton = true,
+  parentPath, // Accept parentPath as a prop
 }) {
-  console.log(items);
   const [filteredItems, setFilteredItems] = useState(items);
   const navigate = useNavigate();
 
@@ -39,15 +39,13 @@ function ItemsView({
   };
 
   const handleAddNew = () => {
-    if (title === "Results") {
-      navigate("/add-result-form", {
-        state: { level: title.toLowerCase(), data: null },
-      });
-    } else {
-      navigate("/edit-form", {
-        state: { level: title.toLowerCase(), data: null },
-      });
-    }
+    console.log("Adding at level:", title.toLowerCase());
+    console.log("Parent Path:", parentPath);
+
+    // Depending on the title (current level), navigate to the correct form
+    navigate("/add-form", {
+      state: { level: title.toLowerCase(), parentPath }, // Pass the level and parentPath to the form
+    });
   };
 
   const handleRemove = (itemToRemove) => {
@@ -62,7 +60,7 @@ function ItemsView({
       items={item}
       key={key}
       level={title}
-      description={item.description} // Make sure this is passed
+      description={item.description} // Ensure description is passed correctly
       onClick={() => onItemClick(item)}
       onRemove={handleRemove}
     />
@@ -72,9 +70,13 @@ function ItemsView({
     <div className="container">
       <h1 style={{ color: "blue" }}>{title}</h1>
       <Search doSearch={doSearch} />
-      <ul className="list-group" style={{ width: "100%" }}>
-        {itemList}
-      </ul>
+      {filteredItems.length > 0 ? (
+        <ul className="list-group" style={{ width: "100%" }}>
+          {itemList}
+        </ul>
+      ) : (
+        <p>No {title.toLowerCase()} found</p> // Show message if no items exist
+      )}
       {showAddButton && (
         <button
           className="btn btn-primary mt-3"
@@ -87,7 +89,7 @@ function ItemsView({
             padding: "10px 20px",
           }}
         >
-          <FaPlus style={{ marginRight: "10px" }} /> Add New
+          <FaPlus style={{ marginRight: "10px" }} /> Add New {title}
         </button>
       )}
     </div>

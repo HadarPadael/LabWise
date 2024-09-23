@@ -1,7 +1,7 @@
 import React from "react";
 import ItemsView from "./ItemsView";
 
-function ResearchQuestionView({ researchQuestions, onItemClick }) {
+function ResearchQuestionView({ researchQuestions, onItemClick, parentPath }) {
   return (
     <ItemsView
       title="Research Questions"
@@ -9,6 +9,7 @@ function ResearchQuestionView({ researchQuestions, onItemClick }) {
       searchKeys={["name", "experiments"]}
       titleKey="name"
       onItemClick={onItemClick} // Pass the onItemClick callback
+      parentPath={parentPath}
     />
   );
 }

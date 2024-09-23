@@ -15,7 +15,9 @@ const connectDB = () => {
     console.error("Error initializing Firebase:", err.message);
   }
 
+  // Return Firestore database instance
   return admin.firestore();
 };
 
-module.exports = connectDB;
+const db = connectDB();
+module.exports = db; // Export the Firestore database instance

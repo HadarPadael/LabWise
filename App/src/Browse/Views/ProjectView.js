@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ItemsView from "./ItemsView";
 
-function ProjectView({ onItemClick }) {
+function ProjectView({ onItemClick, parentPath }) {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -99,6 +99,7 @@ function ProjectView({ onItemClick }) {
           searchKeys={["name", "research_questions"]}
           titleKey="name"
           onItemClick={onItemClick}
+          parentPath={parentPath}
         />
       ) : (
         <p>No projects available.</p>

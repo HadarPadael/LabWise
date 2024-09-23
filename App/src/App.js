@@ -14,6 +14,7 @@ import EditForm from "./Browse/ListItem/EditForm";
 import ProcessedDataView from "./Browse/Views/ProcessedDataView";
 import AddProcessedData from "./Add/AddProcessedData";
 import AddResultForm from "./Add/Forms/AddResultForm";
+import AddForm from "./Browse/ListItem/AddForm";
 
 function App() {
   const [filter, setFilter] = useState("");
@@ -73,6 +74,7 @@ function App() {
           <Route path="/processed-data-view" element={<ProcessedDataView />} />
           <Route path="/AddProcessedData" element={<AddProcessedData />} />
           <Route path="/add-result-form" element={<AddResultForm />} />
+          <Route path="/add-form" element={<AddForm />} />
         </Routes>
       </div>
     </BrowserRouter>

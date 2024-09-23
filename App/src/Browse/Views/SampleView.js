@@ -1,7 +1,7 @@
 import React from "react";
 import ItemsView from "./ItemsView";
 
-function SampleView({ samples, onItemClick }) {
+function SampleView({ samples, onItemClick, parentPath }) {
   return (
     <ItemsView
       title="Samples"
@@ -9,6 +9,7 @@ function SampleView({ samples, onItemClick }) {
       searchKeys={["name", "results"]}
       titleKey="name"
       onItemClick={onItemClick} // Pass the onItemClick callback
+      parentPath={parentPath}
     />
   );
 }

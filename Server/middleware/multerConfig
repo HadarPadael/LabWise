@@ -1,0 +1,13 @@
+const multer = require("multer");
+
+// Define storage for multer to handle file uploads
+const storage = multer.memoryStorage(); // Storing in memory as buffer for direct use in Dropbox
+
+// Set up multer to handle multiple file uploads
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 50 * 1024 * 1024 }, // Set a size limit (e.g., 50MB per file)
+});
+
+// Export the multer upload configuration
+module.exports = upload;

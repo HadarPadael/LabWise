@@ -1,9 +1,12 @@
 import React from "react";
 import ItemsView from "./ItemsView";
 
-function ResultsView({ results }) {
+function ResultsView({ results, parentPath }) {
   const handleItemClick = async (item) => {
+    console.log("Item clicked:", item);
+    console.log("frontend path:", item.file_path);
     try {
+      console.log("frontend path:", item.file_path);
       // Call the backend to get a shareable Dropbox link
       const response = await fetch(
         "http://localhost:5000/api/dropbox/getShareableLink",
@@ -35,6 +38,7 @@ function ResultsView({ results }) {
       searchKeys={["name"]}
       titleKey="name"
       onItemClick={handleItemClick}
+      parentPath={parentPath}
     />
   );
 }

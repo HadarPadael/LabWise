@@ -1,5 +1,7 @@
 const { Dropbox } = require("dropbox");
 const fetch = require("isomorphic-fetch");
+const admin = require("firebase-admin");
+const db = require("../config/firebaseConfig");
 
 // Initialize Dropbox SDK
 const dbx = new Dropbox({
@@ -14,21 +16,6 @@ const listDropboxFolder = async (folderPath) => {
     return response.result.entries; // Return files and folders in the directory
   } catch (error) {
     console.error("Error listing folder:", error);
-    throw error;
-  }
-};
-
-// Upload a new file to Dropbox
-const uploadFileToDropbox = async (filePath, fileContents) => {
-  try {
-    await dbx.filesUpload({
-      path: filePath,
-      contents: fileContents,
-      mode: { ".tag": "overwrite" },
-    });
-    console.log("File uploaded successfully.");
-  } catch (error) {
-    console.error("Error uploading file:", error);
     throw error;
   }
 };
@@ -203,11 +190,197 @@ async function getShareableLinkService(filePath) {
   }
 }
 
+// Helper to create or update project in Firestore
+const addNewProject = async (metadata) => {
+  try {
+    const projectRef = db.collection("projects").doc(metadata.name);
+    await projectRef.set({
+      name: metadata.name,
+      description: metadata.description,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    console.log(`New project added with ID: ${metadata.name}`);
+  } catch (error) {
+    console.error("Error adding new project:", error);
+  }
+};
+
+// Helper to find an item by name
+const findByName = (arr, name) => arr.find((item) => item.name === name);
+
+// Helper to get the project document
+const getProjectData = async (projectName) => {
+  const projectRef = db.collection("projects").doc(projectName);
+  const projectDoc = await projectRef.get();
+  if (!projectDoc.exists) {
+    throw new Error(`Project ${projectName} does not exist.`);
+  }
+  return { projectRef, projectData: projectDoc.data() };
+};
+
+// Helper to ensure metadata is valid
+const prepareMetadata = (level, name, description, fileName, parentPath) => {
+  let metadata = { name, description };
+  
+  if (level === "results") {
+    if (!fileName) {
+      throw new Error("File name is required for results.");
+    }
+    metadata.name = fileName;
+    metadata.file = fileName;
+    metadata.path = `${parentPath}/${fileName}`;
+  }
+
+  if (!metadata.name || !metadata.description) {
+    throw new Error(`Missing name or description for ${level}`);
+  }
+
+  return metadata;
+};
+
+// Helper to handle each level update
+const handleLevelUpdate = (level, metadata, pathSegments, projectData) => {
+  const levelFieldMap = {
+    research_questions: "research_questions",
+    experiments: "experiments",
+    samples: "samples",
+    results: "results",
+  };
+
+  const field = levelFieldMap[level];
+  if (!field) {
+    throw new Error(`Invalid level: ${level}`);
+  }
+
+  let updateData = {};
+
+  if (level === "research_questions") {
+    projectData.research_questions = projectData.research_questions || [];
+    const existingQuestion = findByName(projectData.research_questions, metadata.name);
+    if (existingQuestion) {
+      throw new Error(`Research question with name ${metadata.name} already exists.`);
+    }
+    updateData[`research_questions`] = admin.firestore.FieldValue.arrayUnion(metadata);
+
+  } else if (level === "experiments") {
+    updateData = handleExperimentUpdate(metadata, pathSegments, projectData);
+
+  } else if (level === "samples") {
+    updateData = handleSampleUpdate(metadata, pathSegments, projectData);
+
+  } else if (level === "results") {
+    updateData = handleResultUpdate(metadata, pathSegments, projectData);
+  }
+
+  return updateData;
+};
+
+// Helper for experiment level
+const handleExperimentUpdate = (metadata, pathSegments, projectData) => {
+  const researchQuestionName = pathSegments[3];
+  const researchQuestion = findByName(projectData.research_questions, researchQuestionName);
+  if (!researchQuestion) {
+    throw new Error(`Research question ${researchQuestionName} not found.`);
+  }
+
+  researchQuestion.experiments = researchQuestion.experiments || [];
+  const existingExperiment = findByName(researchQuestion.experiments, metadata.name);
+  if (existingExperiment) {
+    throw new Error(`Experiment with name ${metadata.name} already exists.`);
+  }
+
+  researchQuestion.experiments.push(metadata);
+  return { "research_questions": projectData.research_questions };
+};
+
+// Helper for sample level
+const handleSampleUpdate = (metadata, pathSegments, projectData) => {
+  const researchQuestionName = pathSegments[3];
+  const experimentName = pathSegments[4];
+  const researchQuestion = findByName(projectData.research_questions, researchQuestionName);
+  if (!researchQuestion) {
+    throw new Error(`Research question ${researchQuestionName} not found.`);
+  }
+
+  const experiment = findByName(researchQuestion.experiments, experimentName);
+  if (!experiment) {
+    throw new Error(`Experiment ${experimentName} not found.`);
+  }
+
+  experiment.samples = experiment.samples || [];
+  const existingSample = findByName(experiment.samples, metadata.name);
+  if (existingSample) {
+    throw new Error(`Sample with name ${metadata.name} already exists.`);
+  }
+
+  experiment.samples.push(metadata);
+  return { "research_questions": projectData.research_questions };
+};
+
+// Helper for result level
+const handleResultUpdate = (metadata, pathSegments, projectData) => {
+  const researchQuestionName = pathSegments[3];
+  const experimentName = pathSegments[4];
+  const sampleName = pathSegments[5];
+  const researchQuestion = findByName(projectData.research_questions, researchQuestionName);
+  if (!researchQuestion) {
+    throw new Error(`Research question ${researchQuestionName} not found.`);
+  }
+
+  const experiment = findByName(researchQuestion.experiments, experimentName);
+  if (!experiment) {
+    throw new Error(`Experiment ${experimentName} not found.`);
+  }
+
+  const sample = findByName(experiment.samples, sampleName);
+  if (!sample) {
+    throw new Error(`Sample ${sampleName} not found.`);
+  }
+
+  sample.results = sample.results || [];
+  const existingResult = findByName(sample.results, metadata.name);
+  if (existingResult) {
+    throw new Error(`Result with name ${metadata.name} already exists.`);
+  }
+
+  sample.results.push(metadata);
+  return { "research_questions": projectData.research_questions };
+};
+
+// Main function to add metadata
+const addMetadataToFirebase = async (level, name, description, parentPath, fileName = null) => {
+  try {
+    // Normalize level and prepare metadata
+    level = level.toLowerCase().replace(/\s+/g, "_");
+    const metadata = prepareMetadata(level, name, description, fileName, parentPath);
+
+    if (level === "projects") {
+      await addNewProject(metadata);
+      return;
+    }
+
+    const pathSegments = parentPath.split("/");
+    const projectName = pathSegments[2]; // Assuming path starts with /projects/project_name
+    const { projectRef, projectData } = await getProjectData(projectName);
+
+    const updateData = handleLevelUpdate(level, metadata, pathSegments, projectData);
+
+    // Update the document with the modified data
+    await projectRef.update(updateData);
+
+    console.log(`Metadata for ${name} added to Firebase under ${parentPath}`);
+  } catch (error) {
+    console.error("Error in addMetadataToFirebase:", error);
+    throw new Error(`Error adding ${level} metadata to Firebase`);
+  }
+};
+
 // Export the function
 module.exports = {
   buildProjectStructure,
   listDropboxFolder,
-  uploadFileToDropbox,
   updateDescriptionInDropbox,
   getShareableLinkService,
+  addMetadataToFirebase,
+  dbx,
 };

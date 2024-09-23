@@ -1,8 +1,9 @@
 const express = require("express");
+const upload = require("../middleware/multerConfig");
 const {
   getProjects,
   loadToDB,
-  addFile,
+  addNew,
   updateDescription,
   getShareableLink,
 } = require("../controllers/dropboxController");
@@ -14,7 +15,7 @@ router.post("/loadToDB", loadToDB); // POST to load data to DB
 router.get("/projects", getProjects); // GET projects from the DB
 
 // Add a new file or folder to Dropbox
-router.post("/add", addFile);
+router.post("/addNew", upload.single("file"), addNew);
 
 // Convert to shareable link
 router.post("/getShareableLink", getShareableLink);

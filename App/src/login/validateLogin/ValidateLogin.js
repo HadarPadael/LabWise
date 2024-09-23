@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import CreateFormsList from "../createFormList/createFormList";
 import Styles from "../../styles/Styles";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth"; // Firebase SDK
-import app from "../../firebaseConfig";
+import app from "../../firebaseConfig"; // Import Firebase config
 
 function ValidateLogin({ setIsLoggedIn }) {
   const [email, setEmail] = useState("");
@@ -11,31 +11,28 @@ function ValidateLogin({ setIsLoggedIn }) {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  // Function to get and store the token in localStorage
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     try {
-      // Firebase authentication using client-side SDK
-      console.log("trying to getAuth");
-      const auth = getAuth(app); // Initialize Firebase Auth
-      console.log("trying to get user credentials");
+      const auth = getAuth(app);
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
         password
       );
 
-      console.log("getting token...");
-      // Get Firebase ID token
-      const token = await userCredential.user.getIdToken();
+      // Get Firebase ID token and refresh it before storing
+      const token = await userCredential.user.getIdToken(true);
+      localStorage.setItem("firebaseToken", token); // Store token in localStorage
 
-      console.log("trying to call server");
-      // Send the token to the backend for verification and further processing
+      // Send the token to the backend for verification
       const response = await fetch("http://localhost:5000/api/users/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // Send the token in Authorization header
+          Authorization: `Bearer ${token}`, // Send token in Authorization header
         },
         body: JSON.stringify({ email }),
       });
@@ -43,7 +40,7 @@ function ValidateLogin({ setIsLoggedIn }) {
       const data = await response.json();
       if (response.ok) {
         setIsLoggedIn(true);
-        localStorage.setItem("token", data.token); // Store token if needed
+        localStorage.setItem("token", data.token); // Store server-side token if needed
         navigate("/HomePage"); // Redirect to homepage
       } else {
         setError(data.message || "Login failed");

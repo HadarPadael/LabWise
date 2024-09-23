@@ -1,12 +1,11 @@
-const connectDB = require("../config/firebaseConfig");
+const db = require("../config/firebaseConfig");
 const {
   updateDescriptionInDropbox,
-  uploadFileToDropbox,
+  addMetadataToFirebase,
   buildProjectStructure,
   getShareableLinkService,
+  dbx,
 } = require("../services/dropboxService");
-
-const db = connectDB();
 
 exports.loadToDB = async (req, res) => {
   try {
@@ -74,18 +73,6 @@ exports.getProjects = async (req, res) => {
   } catch (error) {
     console.error("Error fetching projects from Firebase:", error);
     res.status(500).json({ error: "Failed to fetch projects" });
-  }
-};
-
-// Add a new file or folder to Dropbox
-exports.addFile = async (req, res) => {
-  const { folderPath, fileName, fileContent } = req.body;
-  try {
-    const filePath = `${folderPath}/${fileName}`;
-    const result = await uploadFileToDropbox(filePath, fileContent);
-    res.status(200).json(result);
-  } catch (error) {
-    res.status(500).json({ error: "Error adding new file to Dropbox" });
   }
 };
 
@@ -190,5 +177,50 @@ exports.getShareableLink = async (req, res) => {
     console.error("Error generating shareable link:", error);
     res.status(500).send("Error generating shareable link.");
   }
+};
+
+// Add a new item (file/folder)
+exports.addNew = async (req, res) => {
+    const { level, name, description, parentPath } = req.body;
+    let folderPath = '';
+
+    try {
+        // Construct the Dropbox path based on parentPath and name
+        if (level === 'results') {
+            // Results - handle as a file
+            const file = req.file;  // Get the uploaded file
+            const filePath = `${parentPath}/${file.originalname}`;
+
+            // Upload the file to Dropbox
+            await dbx.filesUpload({
+                path: filePath,
+                contents: file.buffer, // File contents from Multer
+            });
+
+            // Add metadata to Firebase
+            await addMetadataToFirebase(level, name, description, parentPath, file.originalname);
+
+        } else {
+            // Folder structure for Projects, Research Questions, Experiments, Samples
+            folderPath = `${parentPath}/${name}`;
+
+            // Create folder in Dropbox
+            await dbx.filesCreateFolderV2({ path: folderPath });
+
+            // Add description.txt file in the folder
+            await dbx.filesUpload({
+                path: `${folderPath}/description.txt`,
+                contents: Buffer.from(description), // Write description as a file
+            });
+
+            // Add metadata to Firebase
+            await addMetadataToFirebase(level, name, description, parentPath);
+        }
+
+        res.status(200).json({ message: `${name} added successfully!` });
+    } catch (error) {
+        console.error("Error adding item:", error);
+        res.status(500).json({ message: "Error adding item", error: error.message });
+    }
 };
 
