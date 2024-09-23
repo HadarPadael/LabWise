@@ -229,7 +229,7 @@ Firebase Firestore is used to store all metadata related to projects, questions,
 - **results:** An array field inside each sample, storing files and their corresponding descriptions.
 
 ---
-This app is merely a proof of concept, not a fully functioning app for production. 
-It's basic and most needed functionalities work well, but should go through further developement.
+***This app is merely a proof of concept, not a fully functioning app for production. 
+It's basic and most needed functionalities work well, but should go through further developement.***
 
 Good luck!
