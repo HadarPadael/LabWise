@@ -6,6 +6,7 @@ const {
   addNew,
   updateDescription,
   getShareableLink,
+  removeItem,
 } = require("../controllers/dropboxController");
 
 const router = express.Router();
@@ -22,5 +23,8 @@ router.post("/getShareableLink", getShareableLink);
 
 // Update the description.txt file
 router.post("/updateDescription", updateDescription);
+
+//remove item from firebase only
+router.post("/removeItem", removeItem);
 
 module.exports = router;

@@ -210,6 +210,7 @@ const findByName = (arr, name) => arr.find((item) => item.name === name);
 
 // Helper to get the project document
 const getProjectData = async (projectName) => {
+  console.log(projectName);
   const projectRef = db.collection("projects").doc(projectName);
   const projectDoc = await projectRef.get();
   if (!projectDoc.exists) {
@@ -218,69 +219,103 @@ const getProjectData = async (projectName) => {
   return { projectRef, projectData: projectDoc.data() };
 };
 
-// Helper to ensure metadata is valid
-const prepareMetadata = (level, name, description, fileName, parentPath) => {
-  let metadata = { name, description };
-  
-  if (level === "results") {
-    if (!fileName) {
-      throw new Error("File name is required for results.");
-    }
-    metadata.name = fileName;
-    metadata.file = fileName;
-    metadata.path = `${parentPath}/${fileName}`;
-  }
+// Helper to prepare metadata based on the level
+const prepareMetadata = (level, name, description, parentPath, fileName = null) => {
+  const metadata = {
+    description,
+    path: `${parentPath}/${fileName || name}`, // Use fileName for results, otherwise use name
+    ...(fileName && { file: fileName }) // Add the file if it exists
+  };
 
-  if (!metadata.name || !metadata.description) {
-    throw new Error(`Missing name or description for ${level}`);
+  // Special handling for results: fileName becomes the name
+  if (level === "results") {
+    if (!fileName) throw new Error("File name is required for results.");
+    metadata.name = fileName;
+  } else {
+    metadata.name = name;
   }
 
   return metadata;
 };
 
-// Helper to handle each level update
-const handleLevelUpdate = (level, metadata, pathSegments, projectData) => {
-  const levelFieldMap = {
-    research_questions: "research_questions",
-    experiments: "experiments",
-    samples: "samples",
-    results: "results",
-  };
-
-  const field = levelFieldMap[level];
-  if (!field) {
-    throw new Error(`Invalid level: ${level}`);
-  }
-
-  let updateData = {};
-
-  if (level === "research_questions") {
-    projectData.research_questions = projectData.research_questions || [];
-    const existingQuestion = findByName(projectData.research_questions, metadata.name);
-    if (existingQuestion) {
-      throw new Error(`Research question with name ${metadata.name} already exists.`);
-    }
-    updateData[`research_questions`] = admin.firestore.FieldValue.arrayUnion(metadata);
-
-  } else if (level === "experiments") {
-    updateData = handleExperimentUpdate(metadata, pathSegments, projectData);
-
-  } else if (level === "samples") {
-    updateData = handleSampleUpdate(metadata, pathSegments, projectData);
-
-  } else if (level === "results") {
-    updateData = handleResultUpdate(metadata, pathSegments, projectData);
-  }
-
-  return updateData;
+// Helper to get the project data
+const getProject = async (projectName) => {
+  const { projectRef, projectData } = await getProjectData(projectName);
+  if (!projectRef || !projectData) throw new Error(`Project ${projectName} does not exist.`);
+  return { projectRef, projectData };
 };
 
-// Helper for experiment level
+// Helper to determine the update data based on the level
+const buildUpdateData = (level, metadata, pathSegments, projectData) => {
+  switch (level) {
+    case "research_questions":
+      return handleResearchQuestionUpdate(metadata, projectData);
+    case "experiments":
+      return handleExperimentUpdate(metadata, pathSegments, projectData);
+    case "samples":
+      return handleSampleUpdate(metadata, pathSegments, projectData);
+    case "results":
+      return handleResultUpdate(metadata, pathSegments, projectData);
+    default:
+      throw new Error(`Invalid level: ${level}`);
+  }
+};
+
+// Main function to add metadata to Firebase
+const addMetadataToFirebase = async (level, name, description, parentPath, fileName = null) => {
+  try {
+    // Normalize the level
+    level = level.toLowerCase().replace(/\s+/g, "_");
+
+    // For projects, set the parentPath to /labwise
+    if (level === "projects") parentPath = "/labwise";
+
+    // Prepare metadata
+    const metadata = prepareMetadata(level, name, description, parentPath, fileName);
+
+    // Handle adding a new project
+    if (level === "projects") {
+      await addNewProject(metadata, parentPath);
+      return;
+    }
+
+    // Get the project data
+    const pathSegments = parentPath.split("/");
+    const projectName = pathSegments[2]; // Assuming path starts with /projects/project_name
+    const { projectRef, projectData } = await getProject(projectName);
+
+    // Build the update data based on the level
+    const updateData = buildUpdateData(level, metadata, pathSegments, projectData);
+
+    // Update Firestore with the new metadata
+    await projectRef.update(updateData);
+    console.log(`Metadata for ${metadata.name} added to Firebase under ${parentPath}`);
+    
+  } catch (error) {
+    console.error("Error in addMetadataToFirebase:", error);
+    throw new Error(`Error adding ${level} metadata to Firebase`);
+  }
+};
+
+// Handle research questions update
+const handleResearchQuestionUpdate = (metadata, projectData) => {
+  projectData.research_questions = projectData.research_questions || [];
+  const existingQuestion = findByName(projectData.research_questions, metadata.name);
+
+  if (existingQuestion) {
+    throw new Error(`Research question with name ${metadata.name} already exists.`);
+  }
+
+  return {
+    research_questions: admin.firestore.FieldValue.arrayUnion(metadata),
+  };
+};
+
+// Handle experiment update
 const handleExperimentUpdate = (metadata, pathSegments, projectData) => {
-  const researchQuestionName = pathSegments[3];
-  const researchQuestion = findByName(projectData.research_questions, researchQuestionName);
+  const researchQuestion = findByName(projectData.research_questions, pathSegments[3]);
   if (!researchQuestion) {
-    throw new Error(`Research question ${researchQuestionName} not found.`);
+    throw new Error(`Research question ${pathSegments[3]} not found.`);
   }
 
   researchQuestion.experiments = researchQuestion.experiments || [];
@@ -290,21 +325,15 @@ const handleExperimentUpdate = (metadata, pathSegments, projectData) => {
   }
 
   researchQuestion.experiments.push(metadata);
-  return { "research_questions": projectData.research_questions };
+  return { research_questions: projectData.research_questions };
 };
 
-// Helper for sample level
+// Handle sample update
 const handleSampleUpdate = (metadata, pathSegments, projectData) => {
-  const researchQuestionName = pathSegments[3];
-  const experimentName = pathSegments[4];
-  const researchQuestion = findByName(projectData.research_questions, researchQuestionName);
-  if (!researchQuestion) {
-    throw new Error(`Research question ${researchQuestionName} not found.`);
-  }
-
-  const experiment = findByName(researchQuestion.experiments, experimentName);
+  const researchQuestion = findByName(projectData.research_questions, pathSegments[3]);
+  const experiment = findByName(researchQuestion.experiments, pathSegments[4]);
   if (!experiment) {
-    throw new Error(`Experiment ${experimentName} not found.`);
+    throw new Error(`Experiment ${pathSegments[4]} not found.`);
   }
 
   experiment.samples = experiment.samples || [];
@@ -314,27 +343,16 @@ const handleSampleUpdate = (metadata, pathSegments, projectData) => {
   }
 
   experiment.samples.push(metadata);
-  return { "research_questions": projectData.research_questions };
+  return { research_questions: projectData.research_questions };
 };
 
-// Helper for result level
+// Handle result update
 const handleResultUpdate = (metadata, pathSegments, projectData) => {
-  const researchQuestionName = pathSegments[3];
-  const experimentName = pathSegments[4];
-  const sampleName = pathSegments[5];
-  const researchQuestion = findByName(projectData.research_questions, researchQuestionName);
-  if (!researchQuestion) {
-    throw new Error(`Research question ${researchQuestionName} not found.`);
-  }
-
-  const experiment = findByName(researchQuestion.experiments, experimentName);
-  if (!experiment) {
-    throw new Error(`Experiment ${experimentName} not found.`);
-  }
-
-  const sample = findByName(experiment.samples, sampleName);
+  const researchQuestion = findByName(projectData.research_questions, pathSegments[3]);
+  const experiment = findByName(researchQuestion.experiments, pathSegments[4]);
+  const sample = findByName(experiment.samples, pathSegments[5]);
   if (!sample) {
-    throw new Error(`Sample ${sampleName} not found.`);
+    throw new Error(`Sample ${pathSegments[5]} not found.`);
   }
 
   sample.results = sample.results || [];
@@ -344,43 +362,135 @@ const handleResultUpdate = (metadata, pathSegments, projectData) => {
   }
 
   sample.results.push(metadata);
-  return { "research_questions": projectData.research_questions };
+  return { research_questions: projectData.research_questions };
 };
 
-// Main function to add metadata
-const addMetadataToFirebase = async (level, name, description, parentPath, fileName = null) => {
+// Main function to remove metadata from Firebase
+const removeItemFromFirebase = async (level, path, itemName) => {
   try {
-    // Normalize level and prepare metadata
+    // Normalize level
     level = level.toLowerCase().replace(/\s+/g, "_");
-    const metadata = prepareMetadata(level, name, description, fileName, parentPath);
 
+    // If at the "projects" level, delete the entire document
     if (level === "projects") {
-      await addNewProject(metadata);
+      const { projectRef } = await getProjectData(itemName);
+      await projectRef.delete();
+      console.log(`Project ${itemName} deleted from Firebase successfully.`);
       return;
+    } else {
+      // Split path and get project name
+      const pathSegments = path.split("/");
+      const projectName = pathSegments[2]; // Assuming /projects/project_name
+
+      // Retrieve the project data
+      const { projectRef, projectData } = await getProjectData(projectName);
+
+      // Handle the removal based on the level
+      const updateData = buildRemoveData(
+        level,
+        itemName,
+        pathSegments,
+        projectData
+      );
+
+      // Update Firestore by rebuilding the array without the removed item
+      await projectRef.update(updateData);
     }
-
-    const pathSegments = parentPath.split("/");
-    const projectName = pathSegments[2]; // Assuming path starts with /projects/project_name
-    const { projectRef, projectData } = await getProjectData(projectName);
-
-    const updateData = handleLevelUpdate(level, metadata, pathSegments, projectData);
-
-    // Update the document with the modified data
-    await projectRef.update(updateData);
-
-    console.log(`Metadata for ${name} added to Firebase under ${parentPath}`);
+    console.log(`Metadata for ${itemName} removed from Firebase under ${path}`);
   } catch (error) {
-    console.error("Error in addMetadataToFirebase:", error);
-    throw new Error(`Error adding ${level} metadata to Firebase`);
+    console.error("Error in removeItemFromFirebase:", error);
+    throw new Error(`Error removing ${level} metadata from Firebase`);
   }
 };
 
-// Export the function
+// Helper to determine the removal data based on the level
+const buildRemoveData = (level, itemName, pathSegments, projectData) => {
+  switch (level) {
+    case "research_questions":
+      return handleResearchQuestionRemove(itemName, projectData);
+    case "experiments":
+      return handleExperimentRemove(itemName, pathSegments, projectData);
+    case "samples":
+      return handleSampleRemove(itemName, pathSegments, projectData);
+    case "results":
+      return handleResultRemove(itemName, pathSegments, projectData);
+    default:
+      throw new Error(`Invalid level: ${level}`);
+  }
+};
+
+// Handle research question removal
+const handleResearchQuestionRemove = (itemName, projectData) => {
+  const researchQuestions = projectData.research_questions || [];
+  const questionToRemove = findByName(researchQuestions, itemName);
+  if (!questionToRemove) {
+    throw new Error(`Research question ${itemName} not found.`);
+  }
+
+  return { research_questions: researchQuestions.filter(question => question.name !== itemName) };
+};
+
+// Handle experiment removal
+const handleExperimentRemove = (itemName, pathSegments, projectData) => {
+  const researchQuestion = findByName(projectData.research_questions, pathSegments[3]);
+  if (!researchQuestion) {
+    throw new Error(`Research question ${pathSegments[3]} not found.`);
+  }
+
+  const experiments = researchQuestion.experiments || [];
+  const experimentToRemove = findByName(experiments, itemName);
+  if (!experimentToRemove) {
+    throw new Error(`Experiment ${itemName} not found.`);
+  }
+
+  researchQuestion.experiments = experiments.filter(experiment => experiment.name !== itemName);
+  return { research_questions: projectData.research_questions };
+};
+
+// Handle sample removal
+const handleSampleRemove = (itemName, pathSegments, projectData) => {
+  const researchQuestion = findByName(projectData.research_questions, pathSegments[3]);
+  const experiment = findByName(researchQuestion.experiments, pathSegments[4]);
+  if (!experiment) {
+    throw new Error(`Experiment ${pathSegments[4]} not found.`);
+  }
+
+  const samples = experiment.samples || [];
+  const sampleToRemove = findByName(samples, itemName);
+  if (!sampleToRemove) {
+    throw new Error(`Sample ${itemName} not found.`);
+  }
+
+  experiment.samples = samples.filter(sample => sample.name !== itemName);
+  return { research_questions: projectData.research_questions };
+};
+
+// Handle result removal
+const handleResultRemove = (itemName, pathSegments, projectData) => {
+  const researchQuestion = findByName(projectData.research_questions, pathSegments[3]);
+  const experiment = findByName(researchQuestion.experiments, pathSegments[4]);
+  const sample = findByName(experiment.samples, pathSegments[5]);
+  if (!sample) {
+    throw new Error(`Sample ${pathSegments[5]} not found.`);
+  }
+
+  const results = sample.results || [];
+  const resultToRemove = findByName(results, itemName);
+  if (!resultToRemove) {
+    throw new Error(`Result ${itemName} not found.`);
+  }
+
+  sample.results = results.filter(result => result.name !== itemName);
+  return { research_questions: projectData.research_questions };
+};
+
+// Export the functions
 module.exports = {
   buildProjectStructure,
   listDropboxFolder,
   updateDescriptionInDropbox,
   getShareableLinkService,
   addMetadataToFirebase,
+  removeItemFromFirebase,
   dbx,
 };

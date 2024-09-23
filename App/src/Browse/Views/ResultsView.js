@@ -3,10 +3,7 @@ import ItemsView from "./ItemsView";
 
 function ResultsView({ results, parentPath }) {
   const handleItemClick = async (item) => {
-    console.log("Item clicked:", item);
-    console.log("frontend path:", item.file_path);
     try {
-      console.log("frontend path:", item.file_path);
       // Call the backend to get a shareable Dropbox link
       const response = await fetch(
         "http://localhost:5000/api/dropbox/getShareableLink",
@@ -15,7 +12,7 @@ function ResultsView({ results, parentPath }) {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ filePath: item.file_path }), // Send Dropbox file path
+          body: JSON.stringify({ filePath: item.path }), // Send Dropbox file path
         }
       );
 

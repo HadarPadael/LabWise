@@ -17,7 +17,7 @@ function ListItem({ name, items, onClick, level, onRemove }) {
   };
 
   const handleDownload = async () => {
-    if (level === "Results" || level == "Processed Data") {
+    if (level === "Results" || level === "Processed Data") {
       try {
         const response = await fetch(items.file_path);
         if (response.ok) {
@@ -73,9 +73,34 @@ function ListItem({ name, items, onClick, level, onRemove }) {
     }
   };
 
-  const handleRemove = () => {
+  const handleRemove = async () => {
     if (window.confirm("Are you sure you want to remove this item?")) {
-      onRemove(items);
+      try {
+        // Make a server call to remove the item from Firebase
+        const response = await fetch(
+          "http://localhost:5000/api/dropbox/removeItem",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              level: level.toLowerCase(),
+              path: items.path, // Pass parentPath for correct hierarchy
+              itemName: items.name, // Pass the name of the item to remove
+            }),
+          }
+        );
+
+        if (response.ok) {
+          console.log(`${level} removed successfully from Firebase.`);
+          onRemove(items); // Optionally update the UI after deletion
+        } else {
+          alert("Failed to remove item from Firebase.");
+        }
+      } catch (error) {
+        console.error("Error removing item from Firebase:", error);
+      }
     }
   };
 

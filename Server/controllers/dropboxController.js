@@ -4,6 +4,7 @@ const {
   addMetadataToFirebase,
   buildProjectStructure,
   getShareableLinkService,
+  removeItemFromFirebase,
   dbx,
 } = require("../services/dropboxService");
 
@@ -224,3 +225,16 @@ exports.addNew = async (req, res) => {
     }
 };
 
+exports.removeItem = async (req, res) => {
+  try {
+    const { level, path, itemName } = req.body;
+
+    // Call the service to remove the item from Firebase
+    await removeItemFromFirebase(level, path, itemName);
+
+    res.status(200).json({ message: `${level} removed successfully` });
+  } catch (error) {
+    console.error("Error in removeItem:", error);
+    res.status(500).json({ error: "Failed to remove item from Firebase" });
+  }
+};
