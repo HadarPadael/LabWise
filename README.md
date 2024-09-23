@@ -1,7 +1,7 @@
 # LabWise
 
 ## Overview
-**LabWise** is a web-based application designed to streamline the management of research data, particularly for labs working with research questions, experiments, samples, and results. The app integrates with Dropbox for file storage and Firebase for metadata management. LabWise allows users to upload, track, and manage research data through an intuitive interface, making data organization and access easier for lab teams.
+**LabWise** is a web-based application designed to handle research data, particularly for labs; Working with a pre-defined structure (Project> research questions> experiments> samples> results), the app allows neat and efficient data management. The app integrates with Dropbox for file storage and Firebase for metadata management. LabWise allows users to upload, track, and manage research data through an intuitive and user friendly interface, making data organization and access easier for lab teams.
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -156,16 +156,80 @@ This token will be used by the LabWise server to authenticate requests to Dropbo
 #### Step 5.5: Configure the Access Token in Your Application
 Once you have the Dropbox access token, you'll need to store it securely in your environment variables.
 
-1. To the same "Server/.env" from the previous step add the environment variables below.
+1. To the same "Server/.env" from the previous step, add the environment variables below.
    ```bash
-  DROPBOX_ACCESS_TOKEN=ACCESS_TOKEN
-  DROPBOX_APP_KEY=APP_KEY
-  DROPBOX_APP_SECRET=APP_SECRET
+     DROPBOX_ACCESS_TOKEN=ACCESS_TOKEN
+     DROPBOX_APP_KEY=APP_KEY
+     DROPBOX_APP_SECRET=APP_SECRET
   ```
 2. Install the Dropbox SDK (if not installed already by "npm install"):
 ```bash
 npm install dropbox
 ```
+### Step 6: Run the app
 
+#### Start the server:
+```bash
+   cd server
+   npm start
+```
 
+#### Start the client:
+```bash
+   cd App
+   npm start
+```
+notice to run them in parallel.
 
+---
+
+## App Usage:
+
+### Dashboard
+Once you log in, you’ll be directed to the dashboard, which provides two main options:
+
+- **Browse:** Browse through research projects and their related questions, experiments, and samples. The app allows you to search across projects or results.
+  Navigate through research questions, experiments, and samples with ease.
+
+- **Add:** Add new data to the database. To add a project, from the project dashboard, click on "Add New Project."; Fill in the required information and submit.
+  To add Processed Data, Upload results and associate them with specific a specific project, research question, experiment and sample.
+  Fill out the description and upload the relevant file.
+
+## Server Usage
+The backend server provides API routes to manage the app's communication with Dropbox and Firebase. Key routes include:
+
+- **List All Projects:** *GET* /api/dropbox/projects
+- **Add New Item:** *POST* /api/dropbox/addNew
+- **Update Description:** *POST* /api/dropbox/updateDescription
+- **Remove Item:** *POST* /api/dropbox/removeItem
+- **Get Shareable Link:** *POST* /api/dropbox/getShareableLink
+
+The server runs on "localhost:5000" and handles all interactions between the frontend, Dropbox, and Firebase.
+
+---
+
+## Dropbox Integration
+LabWise integrates with Dropbox to store research files. Each file uploaded through the app is saved under the correct project, question, experiment, and sample. 
+The firebase stores them as well, but is limited in the means that removing an item from the app removes it from firebase but not from dropbox. that and more, only the description of an existing file can be edited via the app, and addition adds to both dropbox and firebase.
+
+#### To manage files:
+- **Upload Files:** Use the Processed Data feature to upload results files directly, or use the "Add New" button at the buttom of each level in the "Browse" option to add
+  to a specific location during search.
+- **Get Shareable Links:** The server can generate shareable links for files stored in Dropbox for easy collaboration. this, allows easy viewing of result files - simply 
+  click it!
+
+## Firebase Integration
+Firebase Firestore is used to store all metadata related to projects, questions, experiments, and samples. Each project is stored as a document in Firestore collection "projects", with easy-to-use methods in the server to query or update its data.
+
+**Firestore Structure:**
+- **projects:** A collection where each document represents a project.
+- **research_questions:** An array field inside a project that contains its research questions.
+- **experiments:** An array field inside each research question., storing experiments.
+- **samples:** An array field inside each experiment, storing samples.
+- **results:** An array field inside each sample, storing files and their corresponding descriptions.
+
+---
+This app is merely a proof of concept, not a fully functioning app for production. 
+It's basic and most needed functionalities work well, but should go through further developement.
+
+Good luck!
