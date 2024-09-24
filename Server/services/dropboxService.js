@@ -108,7 +108,7 @@ const buildProjectStructure = async (rootFolder) => {
                       ) {
                         resultFilesArr.push({
                           name: file.name.toLocaleLowerCase(),
-                          file_path: file.path_lower,
+                          path: file.path_lower,
                         });
                       }
                     }
