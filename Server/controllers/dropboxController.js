@@ -40,7 +40,7 @@ exports.loadToDB = async (req, res) => {
                 path: sample.path,
                 results: sample.results.map((result) => ({
                   name: result.name,
-                  file_path: result.file_path,
+                  path: result.path,
                 })),
               })),
             })),
