@@ -46,7 +46,7 @@ The app's purpose is to assist lab members in managing their projects, reducing 
 
 ### Step 1: Clone the Repository
 ```bash
-git clone https://github.com/liba21/Nissans-Project.git
+git clone https://github.com/HadarPadael/LabWise.git
 ```
 ### Step 2: Install Dependencies
 Navigate to the app and server folders and install dependencies:
