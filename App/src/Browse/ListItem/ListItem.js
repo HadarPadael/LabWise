@@ -22,7 +22,7 @@ function ListItem({ name, items, onClick, level, onRemove }) {
         const response = await fetch(items.file_path);
         if (response.ok) {
           const blob = await response.blob();
-          saveAs(blob, items.file_path.split("/").pop());
+          saveAs(blob, items.path.split("/").pop());
         } else {
           console.error("Failed to download file.");
         }
